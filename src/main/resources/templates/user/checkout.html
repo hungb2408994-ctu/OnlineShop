@@ -1,0 +1,82 @@
+
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thanh toán | Online Shop</title>
+    <link rel="stylesheet" th:href="@{/css/user/checkout.css}">
+</head>
+<body>
+
+<header class="checkout-header">
+    <a href="/" class="logo">✣ ONLINE SHOP</a>
+    <a href="/cart" class="back-link">← Quay lại giỏ hàng</a>
+</header>
+
+<main class="checkout-container">
+
+    <div class="page-heading">
+        <h1>Xác nhận đặt hàng</h1>
+        <p>Vui lòng kiểm tra thông tin trước khi hoàn tất đơn hàng.</p>
+    </div>
+
+    <div id="checkoutMessage" class="message"></div>
+
+    <div class="checkout-layout">
+
+        <section class="checkout-form-section">
+            <h2>Thông tin giao hàng</h2>
+
+            <form id="checkoutForm">
+
+                <label for="fullName">Họ và tên</label>
+                <input type="text" id="fullName" readonly>
+
+                <label for="email">Email</label>
+                <input type="email" id="email" readonly>
+
+                <label for="shippingAddress">Địa chỉ nhận hàng</label>
+                <textarea
+                    id="shippingAddress"
+                    rows="4"
+                    placeholder="Nhập số nhà, tên đường, phường/xã, quận/huyện, tỉnh/thành phố..."
+                    required></textarea>
+
+                <p class="form-hint">
+                    Vui lòng nhập địa chỉ đầy đủ để đơn hàng được giao chính xác.
+                </p>
+
+                <button type="submit" id="placeOrderButton">
+                    Xác nhận đặt hàng
+                </button>
+
+            </form>
+        </section>
+
+        <aside class="order-summary">
+            <h2>Đơn hàng của bạn</h2>
+
+            <div id="checkoutItems" class="checkout-items">
+                <p>Đang tải sản phẩm...</p>
+            </div>
+
+            <div class="summary-line">
+                <span>Số lượng sản phẩm</span>
+                <strong id="totalQuantity">0</strong>
+            </div>
+
+            <div class="summary-line total-line">
+                <span>Tổng thanh toán</span>
+                <strong id="totalAmount">0 ₫</strong>
+            </div>
+
+        </aside>
+
+    </div>
+
+</main>
+
+<script th:src="@{/js/checkout.js}"></script>
+</body>
+</html>

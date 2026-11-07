@@ -642,3 +642,39 @@ body {
         grid-template-columns: 1fr;
     }
 }
+
+/* Filter error message */
+.filter-error {
+    margin-top: 12px;
+    padding: 12px 16px;
+    background-color: #fef2f2;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    color: #dc2626;
+    font-size: 14px;
+}
+
+/* Vị trí hiển thị nhãn trên ảnh sản phẩm */
+.product-image {
+    position: relative;
+    display: block;
+}
+
+/* Nhãn sản phẩm mới */
+.new-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    z-index: 2;
+
+    padding: 6px 12px;
+    background-color: #e53935;
+    color: #ffffff;
+
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+
+    border-radius: 4px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}

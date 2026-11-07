@@ -39,15 +39,26 @@ public class ProductsPageController {
         // Lấy danh sách danh mục cho sidebar
         model.addAttribute("categories", categoryRepository.findAll());
 
-        // Lấy sản phẩm theo điều kiện tìm kiếm và lọc
-        List<Product> products = new ArrayList<>(
-                productService.searchAndFilter(
-                        keyword,
-                        categoryId,
-                        minPrice,
-                        maxPrice
-                )
-        );
+        // Khởi tạo danh sách sản phẩm rỗng
+        List<Product> products = new ArrayList<>();
+        String filterError = null;
+
+        try {
+            List<Product> result = productService.searchAndFilter(
+                    keyword,
+                    categoryId,
+                    minPrice,
+                    maxPrice
+            );
+
+            // Chỉ thêm sản phẩm nếu kết quả không null
+            if (result != null) {
+                products.addAll(result);
+            }
+
+        } catch (IllegalArgumentException e) {
+            filterError = e.getMessage();
+        }
 
         // Sắp xếp theo giá
         if ("price-asc".equals(sort)) {
@@ -56,9 +67,19 @@ public class ProductsPageController {
             products.sort(
                     Comparator.comparing(Product::getPrice).reversed()
             );
+        } else if ("newest".equals(sort)) {
+            products.sort(
+                    Comparator.comparing(
+                            Product::getCreatedAt,
+                            Comparator.nullsLast(Comparator.reverseOrder())
+                    )
+            );
         }
 
+
+        // Truyền dữ liệu sang Thymeleaf
         model.addAttribute("products", products);
+        model.addAttribute("filterError", filterError);
 
         // Thông tin danh mục đang chọn
         String selectedCategoryName = null;

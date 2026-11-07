@@ -106,7 +106,139 @@
             font-weight: 600;
         }
 
+        .cart-section {
+            margin-top: 28px;
+            padding-top: 25px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .quantity-label {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            width: fit-content;
+            height: 44px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            overflow: hidden;
+        }
+
+        .quantity-control button {
+            width: 44px;
+            height: 100%;
+            border: none;
+            background: #f1f5f9;
+            color: #1e293b;
+            font-size: 21px;
+            cursor: pointer;
+        }
+
+        .quantity-control button:hover:not(:disabled) {
+            background: #dbeafe;
+        }
+
+        .quantity-control button:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .quantity-control input {
+            width: 55px;
+            height: 100%;
+            border: none;
+            outline: none;
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: #172554;
+        }
+
+        .quantity-hint {
+            margin-top: 9px;
+            color: #64748b;
+            font-size: 13px;
+        }
+
+        .cart-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 22px;
+            flex-wrap: wrap;
+        }
+
+        .add-cart-button,
+        .view-cart-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 0 22px;
+            border-radius: 9px;
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .add-cart-button {
+            border: none;
+            background: #2563eb;
+            color: white;
+        }
+
+        .add-cart-button:hover:not(:disabled) {
+            background: #1d4ed8;
+            transform: translateY(-1px);
+        }
+
+        .add-cart-button:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+        }
+
+        .view-cart-button {
+            border: 1px solid #2563eb;
+            color: #2563eb;
+            background: white;
+        }
+
+        .view-cart-button:hover {
+            background: #eff6ff;
+        }
+
+        .cart-message {
+            display: none;
+            margin-top: 18px;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .cart-message.success {
+            display: block;
+            color: #166534;
+            background: #dcfce7;
+        }
+
+        .cart-message.error {
+            display: block;
+            color: #b91c1c;
+            background: #fee2e2;
+        }
+
         @media (max-width: 768px) {
+            .container {
+                margin: 20px auto;
+            }
+
             .product-detail {
                 grid-template-columns: 1fr;
                 padding: 20px;
@@ -120,6 +252,15 @@
             .product-info h1 {
                 font-size: 24px;
             }
+
+            .cart-actions {
+                flex-direction: column;
+            }
+
+            .add-cart-button,
+            .view-cart-button {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -132,7 +273,10 @@
         ← Quay lại trang chủ
     </a>
 
-    <div class="product-detail">
+    <div class="product-detail"
+         id="productDetail"
+         th:attr="data-product-id=${product.id},
+                  data-stock=${product.quantity}">
 
         <div class="product-image">
 
@@ -172,11 +316,59 @@
                 <span th:text="${product.quantity}"></span>
             </div>
 
+            <div class="cart-section">
+
+                <label class="quantity-label" for="quantityInput">
+                    Số lượng
+                </label>
+
+                <div class="quantity-control">
+                    <button type="button" id="decreaseButton">−</button>
+
+                    <input
+                        type="number"
+                        id="quantityInput"
+                        value="1"
+                        min="1"
+                        th:attr="max=${product.quantity}"
+                        readonly>
+
+                    <button type="button" id="increaseButton">+</button>
+                </div>
+
+                <p class="quantity-hint">
+                    Bạn có thể chọn tối đa
+                    <strong th:text="${product.quantity}">0</strong>
+                    sản phẩm.
+                </p>
+
+                <div class="cart-actions">
+
+                    <button
+                        type="button"
+                        class="add-cart-button"
+                        id="addToCartButton"
+                        th:disabled="${product.quantity == null or product.quantity <= 0}">
+                        🛒 Thêm vào giỏ hàng
+                    </button>
+
+                    <a href="/cart" class="view-cart-button">
+                        Xem giỏ hàng
+                    </a>
+
+                </div>
+
+                <div id="cartMessage" class="cart-message"></div>
+
+            </div>
+
         </div>
 
     </div>
 
 </div>
+
+<script src="/js/product-detail.js"></script>
 
 </body>
 </html>

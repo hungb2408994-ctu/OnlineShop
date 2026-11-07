@@ -1,0 +1,13 @@
+package com.shop.online_shop.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@Controller
+public class CheckoutPageController {
+
+    @GetMapping("/checkout")
+    public String showCheckoutPage() {
+        return "user/checkout";
+    }
+}
