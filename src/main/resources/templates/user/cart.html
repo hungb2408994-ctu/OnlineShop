@@ -1,0 +1,76 @@
+
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Giỏ hàng | Online Shop</title>
+
+    <link rel="stylesheet" th:href="@{/css/user/cart.css}">
+</head>
+<body>
+
+<header class="cart-header">
+    <a href="/" class="logo">✣ ONLINE SHOP</a>
+    <a href="/products" class="continue-shopping">← Tiếp tục mua sắm</a>
+</header>
+
+<main class="cart-container">
+
+    <div class="page-heading">
+        <h1>Giỏ hàng của bạn</h1>
+        <p>Kiểm tra sản phẩm trước khi thanh toán.</p>
+    </div>
+
+    <div id="cartMessage" class="cart-message"></div>
+
+    <section id="cartContent" class="cart-layout" hidden>
+
+        <div class="cart-products">
+            <div class="cart-table-heading">
+                <span>Sản phẩm</span>
+                <span>Đơn giá</span>
+                <span>Số lượng</span>
+                <span>Thành tiền</span>
+                <span></span>
+            </div>
+
+            <div id="cartItems"></div>
+        </div>
+
+        <aside class="cart-summary">
+            <h2>Tổng đơn hàng</h2>
+
+            <div class="summary-row">
+                <span>Số lượng sản phẩm</span>
+                <strong id="totalQuantity">0</strong>
+            </div>
+
+            <div class="summary-row total-row">
+                <span>Tổng tiền</span>
+                <strong id="totalAmount">0 ₫</strong>
+            </div>
+
+            <button id="checkoutButton" class="checkout-button">
+                Tiến hành thanh toán
+            </button>
+
+            <a href="/products" class="back-products">
+                Tiếp tục mua sắm
+            </a>
+        </aside>
+
+    </section>
+
+    <section id="emptyCart" class="empty-cart" hidden>
+        <div class="empty-icon">🛒</div>
+        <h2>Giỏ hàng đang trống</h2>
+        <p>Hãy khám phá và chọn sản phẩm bạn yêu thích nhé!</p>
+        <a href="/products" class="shop-button">Khám phá sản phẩm</a>
+    </section>
+
+</main>
+
+<script th:src="@{/js/cart.js}"></script>
+</body>
+</html>

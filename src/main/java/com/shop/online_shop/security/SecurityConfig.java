@@ -58,14 +58,21 @@ public class SecurityConfig {
                         // Trang chủ, trang sản phẩm và tài nguyên giao diện
                         .requestMatchers(
                                 "/",
-                                "/admin/**",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
                                 "/favicon.ico",
+                                "/cart",
                                 "/products",
-                                "/products/**"
+                                "/products/**",
+                                "/login",
+                                "/register",
+                                "/checkout",
+                                "/orders"
                         ).permitAll()
+
+                        // Chỉ ADMIN được truy cập trang quản trị
+                        .requestMatchers("/admin/**").hasRole("ADMIN")
 
                         // API đăng ký và đăng nhập
                         .requestMatchers(

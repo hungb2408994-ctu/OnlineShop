@@ -1,0 +1,42 @@
+
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng của tôi | Online Shop</title>
+    <link rel="stylesheet" th:href="@{/css/user/orders.css}">
+</head>
+<body>
+
+<header class="orders-header">
+    <a href="/" class="logo">✣ ONLINE SHOP</a>
+    <a href="/products" class="back-link">← Tiếp tục mua sắm</a>
+</header>
+
+<main class="orders-container">
+
+    <div class="page-heading">
+        <h1>Đơn hàng của tôi</h1>
+        <p>Theo dõi và kiểm tra các đơn hàng bạn đã đặt.</p>
+    </div>
+
+    <div id="ordersMessage" class="message"></div>
+
+    <section id="ordersList" class="orders-list">
+        <p class="loading">Đang tải đơn hàng...</p>
+    </section>
+
+    <section id="emptyOrders" class="empty-orders" hidden>
+        <div class="empty-icon">📦</div>
+        <h2>Bạn chưa có đơn hàng nào</h2>
+        <p>Hãy khám phá các sản phẩm và bắt đầu mua sắm nhé!</p>
+        <a href="/products" class="shop-button">Mua sắm ngay</a>
+    </section>
+
+</main>
+
+<script th:src="@{/js/orders.js}"></script>
+
+</body>
+</html>

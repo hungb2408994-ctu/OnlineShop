@@ -43,9 +43,34 @@ public class ProductServiceImpl implements ProductService {
             BigDecimal minPrice,
             BigDecimal maxPrice) {
 
-        // Chuẩn hóa từ khóa tìm kiếm
-        if (keyword != null && keyword.trim().isEmpty()) {
-            keyword = null;
+        // Chuẩn hóa từ khóa
+        if (keyword != null) {
+            keyword = keyword.trim();
+
+            if (keyword.isEmpty()) {
+                keyword = null;
+            }
+        }
+
+        // Kiểm tra giá âm
+        if (minPrice != null && minPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối thiểu không được nhỏ hơn 0."
+            );
+        }
+
+        if (maxPrice != null && maxPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối đa không được nhỏ hơn 0."
+            );
+        }
+
+        // Kiểm tra khoảng giá
+        if (minPrice != null && maxPrice != null
+                && minPrice.compareTo(maxPrice) > 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối thiểu không được lớn hơn giá tối đa."
+            );
         }
 
         return productRepository.searchAndFilter(

@@ -139,7 +139,7 @@
                 </h1>
 
                 <span class="product-count">
-                    (<span th:text="${#lists.size(products)}">0</span>
+                    (<span th:text="${products != null ? #lists.size(products) : 0}">0</span>
                     sản phẩm)
                 </span>
 
@@ -168,6 +168,18 @@
                 </a>
 
                 <a th:href="@{/products(
+                    sort='newest',
+                    keyword=${keyword},
+                    categoryId=${selectedCategoryId},
+                    minPrice=${minPrice},
+                    maxPrice=${maxPrice}
+                )}"
+                    class="sort-option"
+                    th:classappend="${sort == 'newest'} ? ' active' : ''">
+                    Mới nhất
+                </a>
+
+                <a th:href="@{/products(
                     categoryId=${selectedCategoryId},
                     keyword=${keyword},
                     minPrice=${minPrice},
@@ -192,15 +204,9 @@
                 </a>
 
                 <span class="sort-option disabled"
-                      title="Cần bổ sung dữ liệu ngày tạo sản phẩm">
-                    Sản phẩm mới nhất
-                </span>
-
-                <span class="sort-option disabled"
                       title="Cần bổ sung dữ liệu số lượng bán">
                     Bán chạy nhất
                 </span>
-
             </div>
 
         </div>
@@ -246,6 +252,12 @@
 
         </form>
 
+        <div class="filter-error"
+            th:if="${filterError != null}"
+            th:text="${filterError}">
+            Thông tin lọc không hợp lệ.
+        </div>
+
         <!-- PRODUCT GRID -->
         <div class="products"
              th:if="${not #lists.isEmpty(products)}">
@@ -254,20 +266,28 @@
                      th:each="product : ${products}">
 
                 <a class="product-image"
-                   th:href="@{/products/{id}(id=${product.id})}">
+                    th:href="@{/products/{id}(id=${product.id})}">
 
-                    <img
-                        th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                        th:src="${product.imageUrl}"
-                        th:alt="${product.name}"
-                    >
+                        <!-- TAG SẢN PHẨM MỚI -->
+                        <span class="new-badge"
+                            th:if="${product.createdAt != null
+                            and product.createdAt.isAfter(
+                                T(java.time.LocalDateTime).now().minusDays(7)
+                            )}">
+                            MỚI
+                        </span>
 
-                    <img
-                        th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                        src="https://placehold.co/300x220/e0ecff/2563eb?text=No+Image"
-                        alt="No image"
-                    >
+                        <img
+                            th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                            th:src="${product.imageUrl}"
+                            th:alt="${product.name}"
+                        >
 
+                        <img
+                            th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                            src="https://placehold.co/300x220/e0ecff/2563eb?text=No+Image"
+                            alt="No image"
+                        >
                 </a>
 
                 <div class="product-info">

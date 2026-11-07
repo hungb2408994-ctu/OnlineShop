@@ -3,6 +3,7 @@ package com.shop.online_shop.entity;
 
 import jakarta.persistence.*;
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "products")
@@ -29,14 +30,31 @@ public class Product {
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
+    @Column(name = "created_at")
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    public void prePersist() {
+        if (createdAt == null) {
+            createdAt = LocalDateTime.now();
+        }
+    }
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_model_id")
+    private ProductModel productModel;
+
+    @Column(name = "variant_name")
+    private String variantName;
+
     // Getter và Setter
     public Long getId() {
         return id;
-}
+    }
 
     public void setId(Long id) {
         this.id = id;
-}
+    }
     public Long getCategoryId() {
         return categoryId;
     }
@@ -84,4 +102,29 @@ public class Product {
     public void setImageUrl(String imageUrl) {
         this.imageUrl = imageUrl;
     }
+
+    public LocalDateTime getCreatedAt() {
+    return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public ProductModel getProductModel() {
+        return productModel;
+    }
+
+    public void setProductModel(ProductModel productModel) {
+        this.productModel = productModel;
+    }
+
+    public String getVariantName() {
+        return variantName;
+    }
+
+    public void setVariantName(String variantName) {
+        this.variantName = variantName;
+    }
+
 }
