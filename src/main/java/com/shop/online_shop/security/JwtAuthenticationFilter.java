@@ -1,4 +1,3 @@
-
 package com.shop.online_shop.security;
 
 import com.shop.online_shop.entity.User;
@@ -7,6 +6,7 @@ import com.shop.online_shop.service.JwtService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -39,18 +39,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String authHeader = request.getHeader("Authorization");
+        String token = resolveToken(request);
 
-        // Không có JWT: tiếp tục xử lý request
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
-        String token = authHeader.substring(7);
-
-        // Kiểm tra JWT
-        if (!jwtService.isTokenValid(token)) {
+        // Không có JWT hoặc JWT không hợp lệ: tiếp tục xử lý request
+        if (token == null || !jwtService.isTokenValid(token)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -89,5 +81,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Lấy JWT từ header Authorization (các lời gọi API) hoặc từ cookie
+     * (khi trình duyệt mở trang HTML như /admin/**).
+     */
+    private String resolveToken(HttpServletRequest request) {
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (AuthCookie.ACCESS_TOKEN.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return null;
     }
 }

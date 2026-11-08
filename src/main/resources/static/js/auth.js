@@ -39,9 +39,22 @@ function getErrorMessage(error) {
     return error.message || "Đã xảy ra lỗi. Vui lòng thử lại.";
 }
 
-// Sau khi đăng nhập: quay lại trang trước đó nếu có, ngược lại về trang chủ
+// Sau khi đăng nhập: quay lại trang trước đó nếu có.
+// Không có trang chờ sẵn thì ADMIN vào thẳng trang quản trị, người dùng về trang chủ.
 function redirectAfterLogin() {
-    window.location.replace(getSafeNextPath() || "/");
+    const next = getSafeNextPath();
+
+    if (next) {
+        window.location.replace(next);
+        return;
+    }
+
+    const user = getCurrentUser();
+
+    const defaultPath =
+        user && user.role === "ADMIN" ? "/admin/products" : "/";
+
+    window.location.replace(defaultPath);
 }
 
 // Giữ lại ?next= khi người dùng chuyển giữa trang đăng nhập và đăng ký

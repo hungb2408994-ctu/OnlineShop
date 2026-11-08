@@ -31,7 +31,12 @@ function renderHomeAccount(user) {
     }
 
     // Đã đăng nhập: hiển thị tên và nút đăng xuất
-    accountLink.href = "#";
+    const isAdmin = user.role === "ADMIN";
+
+    // ADMIN bấm vào tên sẽ mở trang quản trị
+    accountLink.href = isAdmin ? "/admin/products" : "#";
+    accountLink.title = isAdmin ? "Mở trang quản trị" : "";
+
     accountLink.innerHTML = `
         <span class="account-icon">♙</span>
         <span class="account-info">
@@ -66,9 +71,15 @@ function renderProductsAccount(user) {
         return;
     }
 
-    // Đã đăng nhập
+    // Đã đăng nhập: ADMIN bấm vào tên sẽ mở trang quản trị
+    const isAdmin = user.role === "ADMIN";
+
+    const nameMarkup = isAdmin
+        ? `<a class="account-name" href="/admin/products" title="Mở trang quản trị"></a>`
+        : `<strong class="account-name"></strong>`;
+
     info.innerHTML = `
-        <strong class="account-name"></strong>
+        ${nameMarkup}
         <button type="button" class="logout-link">Đăng xuất</button>
     `;
 

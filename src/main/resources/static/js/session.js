@@ -48,7 +48,14 @@ function clearSession() {
 }
 
 // Đăng xuất và quay về trang chủ
-function logout() {
+async function logout() {
+    try {
+        // Xóa cả cookie phiên trên server (dùng cho các trang /admin/**)
+        await fetch("/api/auth/logout", { method: "POST" });
+    } catch (error) {
+        console.error("Không thể đăng xuất trên máy chủ:", error);
+    }
+
     clearSession();
     window.location.href = "/";
 }
