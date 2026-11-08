@@ -22,12 +22,14 @@ public class OrderService {
         private final UserRepository userRepository;
         private final ProductRepository productRepository;
         private final JdbcTemplate jdbcTemplate;
+        private final NotificationRepository notificationRepository;
 
     public OrderService(
         OrderRepository orderRepository,
         CartRepository cartRepository,
         UserRepository userRepository,
         ProductRepository productRepository,
+        NotificationRepository notificationRepository,
         JdbcTemplate jdbcTemplate) {
 
         this.orderRepository = orderRepository;
@@ -35,6 +37,7 @@ public class OrderService {
         this.userRepository = userRepository;
         this.productRepository = productRepository;
         this.jdbcTemplate = jdbcTemplate;
+        this.notificationRepository = notificationRepository;
     }
 
     @Transactional
@@ -109,6 +112,27 @@ public class OrderService {
         order.setTotalAmount(totalAmount);
 
         Order savedOrder = orderRepository.save(order);
+
+        // Tạo thông báo cho tất cả Admin
+        List<User> admins = userRepository.findAllByRoleIgnoreCase("ADMIN");
+
+        for (User admin : admins) {
+
+        Notification notification = new Notification();
+
+        notification.setUser(admin);
+        notification.setOrder(savedOrder);
+        notification.setTitle("Đơn hàng mới");
+
+        notification.setMessage(
+                "Khách hàng " + user.getFullName()
+                + " vừa đặt đơn hàng #" + savedOrder.getId()
+        );
+
+        notification.setRead(false);
+
+        notificationRepository.save(notification);
+        }
 
         cart.getItems().clear();
         cartRepository.save(cart);

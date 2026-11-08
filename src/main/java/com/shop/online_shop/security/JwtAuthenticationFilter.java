@@ -9,6 +9,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -50,15 +51,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Lấy email từ JWT
         String email = jwtService.extractUsername(token);
 
-        // Chỉ xác thực nếu chưa có Authentication
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Tìm User trong database
             User user = userRepository.findByEmail(email).orElse(null);
 
             if (user != null && user.getRole() != null) {
 
-                // Lấy Role từ database
                 String role = user.getRole().toUpperCase();
 
                 UsernamePasswordAuthenticationToken authentication =
