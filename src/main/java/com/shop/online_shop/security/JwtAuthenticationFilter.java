@@ -1,4 +1,3 @@
-
 package com.shop.online_shop.security;
 
 import com.shop.online_shop.entity.User;
@@ -7,6 +6,7 @@ import com.shop.online_shop.service.JwtService;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Cookie;
@@ -40,28 +40,9 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String token = null;
+        String token = resolveToken(request);
 
-        // Ưu tiên lấy JWT từ Authorization header
-        String authHeader = request.getHeader("Authorization");
-
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);
-        }
-
-        // Nếu không có Bearer token thì lấy từ Cookie
-        if (token == null && request.getCookies() != null) {
-
-            for (Cookie cookie : request.getCookies()) {
-
-                if ("accessToken".equals(cookie.getName())) {
-                    token = cookie.getValue();
-                    break;
-                }
-            }
-        }
-
-        // Không có JWT thì tiếp tục xử lý request
+        // Không có JWT hoặc JWT không hợp lệ: tiếp tục xử lý request
         if (token == null || !jwtService.isTokenValid(token)) {
             filterChain.doFilter(request, response);
             return;
@@ -98,5 +79,30 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    /**
+     * Lấy JWT từ header Authorization (các lời gọi API) hoặc từ cookie
+     * (khi trình duyệt mở trang HTML như /admin/**).
+     */
+    private String resolveToken(HttpServletRequest request) {
+
+        String authHeader = request.getHeader("Authorization");
+
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+
+        Cookie[] cookies = request.getCookies();
+
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if (AuthCookie.ACCESS_TOKEN.equals(cookie.getName())) {
+                    return cookie.getValue();
+                }
+            }
+        }
+
+        return null;
     }
 }

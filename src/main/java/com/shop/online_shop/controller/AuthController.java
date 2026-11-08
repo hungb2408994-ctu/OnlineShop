@@ -1,15 +1,18 @@
-
 package com.shop.online_shop.controller;
 
 import com.shop.online_shop.dto.LoginRequest;
 import com.shop.online_shop.dto.RegisterRequest;
 import com.shop.online_shop.entity.User;
+import com.shop.online_shop.security.AuthCookie;
 import com.shop.online_shop.service.AuthService;
 import com.shop.online_shop.service.JwtService;
 
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseCookie;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.http.HttpHeaders;
@@ -59,7 +62,8 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(
-            @Valid @RequestBody LoginRequest request) {
+            @Valid @RequestBody LoginRequest request,
+            HttpServletResponse response) {
 
         try {
             User user = authService.login(
@@ -72,32 +76,56 @@ public class AuthController {
                 user.getEmail()
             );
 
-            ResponseCookie jwtCookie = ResponseCookie.from("accessToken", accessToken)
-                    .httpOnly(true)
-                    .secure(false) // localhost dùng HTTP; production HTTPS phải đổi thành true
-                    .path("/")
-                    .maxAge(Duration.ofHours(24))
-                    .sameSite("Lax")
-                    .build();
+            // Lưu JWT vào cookie để các trang server-side (/admin/**) xác thực được.
+            // Giao diện vẫn dùng Authorization: Bearer cho các lời gọi API.
+            response.addHeader(
+                HttpHeaders.SET_COOKIE,
+                buildAccessTokenCookie(accessToken, jwtService.getExpirationMillis())
+                    .toString()
+            );
 
-            return ResponseEntity.ok()
-                    .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
-                    .body(
-                        Map.of(
-                            "message", "Đăng nhập thành công!",
-                            "userId", user.getId(),
-                            "fullName", user.getFullName(),
-                            "email", user.getEmail(),
-                            "role", user.getRole(),
-                            "accessToken", accessToken,
-                            "tokenType", "Bearer"
-                        )
-                    );
+            return ResponseEntity.ok(
+                Map.of(
+                    "message", "Đăng nhập thành công!",
+                    "userId", user.getId(),
+                    "fullName", user.getFullName(),
+                    "email", user.getEmail(),
+                    "role", user.getRole(),
+                    "accessToken", accessToken,
+                    "tokenType", "Bearer"
+                )
+            );
 
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
                 Map.of("message", e.getMessage())
             );
         }
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(HttpServletResponse response) {
+
+        // Xóa cookie phiên đăng nhập
+        response.addHeader(
+            HttpHeaders.SET_COOKIE,
+            buildAccessTokenCookie("", 0).toString()
+        );
+
+        return ResponseEntity.ok(
+            Map.of("message", "Đăng xuất thành công!")
+        );
+    }
+
+    private ResponseCookie buildAccessTokenCookie(String value, long maxAgeMillis) {
+
+        return ResponseCookie.from(AuthCookie.ACCESS_TOKEN, value)
+                .httpOnly(true)
+                // Chỉ bật secure(true) khi chạy HTTPS
+                .secure(false)
+                .path("/")
+                .maxAge(Duration.ofMillis(maxAgeMillis))
+                .sameSite("Lax")
+                .build();
     }
 }
