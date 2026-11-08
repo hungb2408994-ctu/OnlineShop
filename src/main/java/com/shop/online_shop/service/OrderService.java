@@ -1,13 +1,14 @@
-
 package com.shop.online_shop.service;
 
 import com.shop.online_shop.dto.OrderItemResponse;
 import com.shop.online_shop.dto.OrderResponse;
+import com.shop.online_shop.dto.OrderSummaryResponse;
 import com.shop.online_shop.entity.*;
 import com.shop.online_shop.repository.*;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -16,21 +17,24 @@ import java.util.List;
 @Service
 public class OrderService {
 
-    private final OrderRepository orderRepository;
-    private final CartRepository cartRepository;
-    private final UserRepository userRepository;
-    private final ProductRepository productRepository;
+        private final OrderRepository orderRepository;
+        private final CartRepository cartRepository;
+        private final UserRepository userRepository;
+        private final ProductRepository productRepository;
+        private final JdbcTemplate jdbcTemplate;
 
     public OrderService(
-            OrderRepository orderRepository,
-            CartRepository cartRepository,
-            UserRepository userRepository,
-            ProductRepository productRepository) {
+        OrderRepository orderRepository,
+        CartRepository cartRepository,
+        UserRepository userRepository,
+        ProductRepository productRepository,
+        JdbcTemplate jdbcTemplate) {
 
         this.orderRepository = orderRepository;
         this.cartRepository = cartRepository;
         this.userRepository = userRepository;
         this.productRepository = productRepository;
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     @Transactional
@@ -161,4 +165,34 @@ public class OrderService {
 
         return responses;
     }
+
+        @Transactional(readOnly = true)
+        public BigDecimal calculateOrderTotal(Long orderId, Long userId) {
+
+        boolean isOwner = orderRepository.existsByIdAndUser_Id(orderId, userId);
+
+        if (!isOwner) {
+                throw new RuntimeException("Order not found!");
+        }
+
+        return orderRepository.calculateOrderTotal(orderId);
+        }
+        @Transactional(readOnly = true)
+        public OrderSummaryResponse getOrderSummary(Long userId) {
+
+        return jdbcTemplate.queryForObject(
+                "CALL sp_user_order_summary(?)",
+                (rs, rowNum) -> new OrderSummaryResponse(
+                        rs.getLong("total_orders"),
+                        rs.getLong("pending_orders"),
+                        rs.getLong("confirmed_orders"),
+                        rs.getLong("shipping_orders"),
+                        rs.getLong("completed_orders"),
+                        rs.getLong("cancelled_orders"),
+                        rs.getBigDecimal("completed_amount")
+                ),
+                userId
+        );
+        }
+
 }

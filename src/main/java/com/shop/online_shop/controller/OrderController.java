@@ -1,6 +1,5 @@
 
 package com.shop.online_shop.controller;
-
 import com.shop.online_shop.dto.OrderResponse;
 import com.shop.online_shop.dto.CheckoutRequest;
 import com.shop.online_shop.entity.User;
@@ -12,7 +11,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.Map;
+
+import com.shop.online_shop.dto.OrderSummaryResponse;
 
 @RestController
 @RequestMapping("/api/orders")
@@ -85,4 +87,54 @@ public class OrderController {
                     .body(Map.of("message", e.getMessage()));
         }
     }
+
+    @GetMapping("/{userId}/summary")
+    public ResponseEntity<?> getOrderSummary(
+            @PathVariable Long userId,
+            Authentication authentication) {
+
+        try {
+            if (!isOwner(userId, authentication)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", "Access denied!"));
+            }
+
+            OrderSummaryResponse summary =
+                    orderService.getOrderSummary(userId);
+
+            return ResponseEntity.ok(summary);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("message", e.getMessage()));
+        }
+    }
+
+    @GetMapping("/{orderId}/total")
+    public ResponseEntity<?> calculateOrderTotal(
+            @PathVariable Long orderId,
+            Authentication authentication) {
+
+        if (authentication == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Please login first!"));
+        }
+
+        try {
+            User user = userRepository.findByEmail(authentication.getName())
+                    .orElseThrow(() -> new RuntimeException("User not found!"));
+
+            BigDecimal total = orderService.calculateOrderTotal(
+                    orderId,
+                    user.getId()
+            );
+
+            return ResponseEntity.ok(total);
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", e.getMessage()));
+        }
+}
+
 }
