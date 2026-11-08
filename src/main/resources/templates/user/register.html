@@ -89,13 +89,14 @@
 
         <p class="auth-switch">
             Đã có tài khoản?
-            <a th:href="@{/login}">Đăng nhập</a>
+            <a th:href="@{/login}" id="loginLink">Đăng nhập</a>
         </p>
 
         <a href="/" class="back-home">← Quay lại trang chủ</a>
     </div>
 </div>
 
+<script th:src="@{/js/session.js}"></script>
 <script th:src="@{/js/auth.js}"></script>
 </body>
 </html>
