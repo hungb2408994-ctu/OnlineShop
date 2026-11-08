@@ -244,3 +244,104 @@ th {
 #saveProductBtn {
     background: #2563eb;
 }
+
+
+/* ==============================
+   ADMIN ORDER MANAGEMENT
+============================== */
+
+.order-statistics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.stat-card {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.stat-card span {
+    color: #64748b;
+    font-size: 14px;
+}
+
+.stat-card strong {
+    font-size: 25px;
+    color: #1e293b;
+}
+
+.order-toolbar input {
+    flex: 1;
+    min-width: 220px;
+}
+
+.order-toolbar select,
+.form-group select {
+    padding: 11px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    font-size: 14px;
+    outline: none;
+}
+
+.order-toolbar select:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+}
+
+.order-status-btn {
+    background: #2563eb;
+}
+
+.order-modal-content {
+    max-width: 850px;
+}
+
+.order-information {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.order-information p {
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.order-items-title {
+    margin-bottom: 15px;
+    font-size: 17px;
+}
+
+.order-modal-content .table-container {
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: 15px;
+    }
+
+    .order-information {
+        grid-template-columns: 1fr;
+    }
+
+    .order-toolbar {
+        flex-direction: column;
+    }
+
+    .order-toolbar input,
+    .order-toolbar select,
+    .order-toolbar button {
+        width: 100%;
+    }
+}

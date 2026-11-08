@@ -1,0 +1,183 @@
+
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Quản lý đơn hàng</title>
+
+    <link rel="stylesheet" th:href="@{/css/admin.css}">
+</head>
+
+<body>
+
+<div class="admin-container">
+
+    <aside class="sidebar">
+        <h2>Online Shop</h2>
+
+        <nav>
+            <a href="/admin/products">Quản lý sản phẩm</a>
+            <a href="/admin/categories">Quản lý danh mục</a>
+            <a href="/admin/orders" class="active">Quản lý đơn hàng</a>
+            <a href="/admin/users">Quản lý người dùng</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+
+        <header class="topbar">
+            <h1>Quản lý đơn hàng</h1>
+            <span>Admin</span>
+        </header>
+
+        <section class="content">
+
+            <!-- Thống kê -->
+            <div class="order-statistics">
+                <div class="stat-card">
+                    <span>Tổng đơn hàng</span>
+                    <strong id="totalOrders">0</strong>
+                </div>
+
+                <div class="stat-card">
+                    <span>Chờ xác nhận</span>
+                    <strong id="pendingOrders">0</strong>
+                </div>
+
+                <div class="stat-card">
+                    <span>Đang giao</span>
+                    <strong id="shippingOrders">0</strong>
+                </div>
+
+                <div class="stat-card">
+                    <span>Đã hoàn thành</span>
+                    <strong id="completedOrders">0</strong>
+                </div>
+
+                <div class="stat-card">
+                    <span>Đã hủy</span>
+                    <strong id="cancelledOrders">0</strong>
+                </div>
+            </div>
+
+            <!-- Tìm kiếm và lọc -->
+            <div class="toolbar order-toolbar">
+
+                <input
+                    type="text"
+                    id="searchOrderInput"
+                    placeholder="Tìm theo mã đơn, tên hoặc email khách hàng..."
+                >
+
+                <select id="statusFilter">
+                    <option value="">Tất cả trạng thái</option>
+                    <option value="PENDING">Chờ xác nhận</option>
+                    <option value="CONFIRMED">Đã xác nhận</option>
+                    <option value="SHIPPING">Đang giao</option>
+                    <option value="COMPLETED">Đã hoàn thành</option>
+                    <option value="CANCELLED">Đã hủy</option>
+                </select>
+
+                <button type="button" id="resetOrderBtn">
+                    Làm mới
+                </button>
+
+            </div>
+
+            <!-- Bảng đơn hàng -->
+            <div class="table-container">
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Mã khách hàng</th>
+                            <th>Ngày đặt</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Địa chỉ giao hàng</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+
+                    <tbody id="orderTableBody">
+                        <tr>
+                            <td colspan="7">Đang tải dữ liệu...</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+            </div>
+
+        </section>
+
+    </main>
+
+    <!-- Modal chi tiết đơn hàng -->
+    <div id="orderDetailModal" class="modal hidden">
+
+        <div class="modal-content order-modal-content">
+
+            <div class="modal-header">
+                <h2>Chi tiết đơn hàng</h2>
+                <button type="button" id="closeOrderDetailBtn">&times;</button>
+            </div>
+
+            <div id="orderDetailContent">
+                <!-- JavaScript hiển thị chi tiết -->
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- Modal cập nhật trạng thái -->
+    <div id="orderStatusModal" class="modal hidden">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h2>Cập nhật trạng thái</h2>
+                <button type="button" id="closeStatusModalBtn">&times;</button>
+            </div>
+
+            <form id="orderStatusForm">
+
+                <input type="hidden" id="statusOrderId">
+
+                <div class="form-group">
+                    <label for="newOrderStatus">Trạng thái mới</label>
+
+                    <select id="newOrderStatus" required>
+                        <option value="PENDING">Chờ xác nhận</option>
+                        <option value="CONFIRMED">Đã xác nhận</option>
+                        <option value="SHIPPING">Đang giao</option>
+                        <option value="COMPLETED">Đã hoàn thành</option>
+                        <option value="CANCELLED">Đã hủy</option>
+                    </select>
+                </div>
+
+                <div class="modal-actions">
+                    <button type="button" id="cancelStatusBtn">
+                        Đóng
+                    </button>
+
+                    <button type="submit">
+                        Lưu trạng thái
+                    </button>
+                </div>
+
+            </form>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script th:src="@{/js/admin-orders.js}"></script>
+
+</body>
+</html>
