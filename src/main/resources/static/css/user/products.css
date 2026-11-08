@@ -154,6 +154,28 @@ body {
     color: #2563eb;
 }
 
+.header-account .account-name {
+    color: #172033;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.header-account .logout-link {
+    padding: 0;
+    border: none;
+    background: none;
+    color: #818ba7;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    text-align: left;
+    cursor: pointer;
+}
+
+.header-account .logout-link:hover {
+    color: #dc2626;
+}
+
 .header-icon,
 .header-notification {
     font-size: 30px;
