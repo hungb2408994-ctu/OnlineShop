@@ -12,7 +12,10 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 
+import java.time.Duration;
 import java.util.Map;
 
 @RestController
@@ -69,17 +72,27 @@ public class AuthController {
                 user.getEmail()
             );
 
-            return ResponseEntity.ok(
-                Map.of(
-                    "message", "Đăng nhập thành công!",
-                    "userId", user.getId(),
-                    "fullName", user.getFullName(),
-                    "email", user.getEmail(),
-                    "role", user.getRole(),
-                    "accessToken", accessToken,
-                    "tokenType", "Bearer"
-                )
-            );
+            ResponseCookie jwtCookie = ResponseCookie.from("accessToken", accessToken)
+                    .httpOnly(true)
+                    .secure(false) // localhost dùng HTTP; production HTTPS phải đổi thành true
+                    .path("/")
+                    .maxAge(Duration.ofHours(24))
+                    .sameSite("Lax")
+                    .build();
+
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.SET_COOKIE, jwtCookie.toString())
+                    .body(
+                        Map.of(
+                            "message", "Đăng nhập thành công!",
+                            "userId", user.getId(),
+                            "fullName", user.getFullName(),
+                            "email", user.getEmail(),
+                            "role", user.getRole(),
+                            "accessToken", accessToken,
+                            "tokenType", "Bearer"
+                        )
+                    );
 
         } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
