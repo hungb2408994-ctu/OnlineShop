@@ -9,6 +9,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.Cookie;
 
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -39,18 +40,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
+        String token = null;
+
+        // Ưu tiên lấy JWT từ Authorization header
         String authHeader = request.getHeader("Authorization");
 
-        // Không có JWT: tiếp tục xử lý request
-        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            filterChain.doFilter(request, response);
-            return;
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            token = authHeader.substring(7);
         }
 
-        String token = authHeader.substring(7);
+        // Nếu không có Bearer token thì lấy từ Cookie
+        if (token == null && request.getCookies() != null) {
 
-        // Kiểm tra JWT
-        if (!jwtService.isTokenValid(token)) {
+            for (Cookie cookie : request.getCookies()) {
+
+                if ("accessToken".equals(cookie.getName())) {
+                    token = cookie.getValue();
+                    break;
+                }
+            }
+        }
+
+        // Không có JWT thì tiếp tục xử lý request
+        if (token == null || !jwtService.isTokenValid(token)) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -58,15 +70,12 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // Lấy email từ JWT
         String email = jwtService.extractUsername(token);
 
-        // Chỉ xác thực nếu chưa có Authentication
         if (SecurityContextHolder.getContext().getAuthentication() == null) {
 
-            // Tìm User trong database
             User user = userRepository.findByEmail(email).orElse(null);
 
             if (user != null && user.getRole() != null) {
 
-                // Lấy Role từ database
                 String role = user.getRole().toUpperCase();
 
                 UsernamePasswordAuthenticationToken authentication =

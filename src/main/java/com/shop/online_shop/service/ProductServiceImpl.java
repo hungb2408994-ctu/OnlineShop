@@ -5,6 +5,8 @@ import com.shop.online_shop.entity.Product;
 import com.shop.online_shop.repository.ProductRepository;
 
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -122,4 +124,62 @@ public class ProductServiceImpl implements ProductService {
         Product product = getProductById(id);
         productRepository.delete(product);
     }
+
+    @Override
+    public List<Product> getBestSellingProducts(int limit) {
+
+        if (limit <= 0) {
+            return List.of();
+        }
+
+        Pageable pageable = PageRequest.of(0, limit);
+
+        return productRepository.findBestSellingProducts(pageable);
+    }
+
+    @Override
+    public List<Product> getBestSellingProducts(
+            String keyword,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
+
+        // Chuẩn hóa từ khóa
+        if (keyword != null) {
+            keyword = keyword.trim();
+
+            if (keyword.isEmpty()) {
+                keyword = null;
+            }
+        }
+
+        // Kiểm tra giá âm
+        if (minPrice != null && minPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối thiểu không được nhỏ hơn 0."
+            );
+        }
+
+        if (maxPrice != null && maxPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối đa không được nhỏ hơn 0."
+            );
+        }
+
+        // Kiểm tra khoảng giá
+        if (minPrice != null && maxPrice != null
+                && minPrice.compareTo(maxPrice) > 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối thiểu không được lớn hơn giá tối đa."
+            );
+        }
+
+        return productRepository.searchAndFilterByBestSelling(
+                keyword,
+                categoryId,
+                minPrice,
+                maxPrice
+        );
+    }
+
 }

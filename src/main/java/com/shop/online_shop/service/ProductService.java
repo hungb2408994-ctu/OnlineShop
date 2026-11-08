@@ -38,4 +38,16 @@ public interface ProductService {
             BigDecimal minPrice,
             BigDecimal maxPrice
     );
+
+    // Lấy danh sách sản phẩm bán chạy nhất
+    List<Product> getBestSellingProducts(int limit);
+
+    // Tìm kiếm và lọc sản phẩm theo số lượng bán
+    List<Product> getBestSellingProducts(
+            String keyword,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice
+    );
+
 }
