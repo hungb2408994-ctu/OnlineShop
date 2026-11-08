@@ -257,128 +257,103 @@ th {
     background: #2563eb;
 }
 
-/* Notification */
-.notification-wrapper {
-    position: relative;
-    display: inline-flex;
-    align-items: center;
+
+/* ==============================
+   ADMIN ORDER MANAGEMENT
+============================== */
+
+.order-statistics {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
 }
 
-.notification-bell {
-    position: relative;
-    width: 42px;
-    height: 42px;
-    border: 1px solid #e5e7eb;
-    border-radius: 50%;
-    background: #fff;
-    font-size: 21px;
-    cursor: pointer;
-}
-
-.notification-badge {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    min-width: 19px;
-    height: 19px;
-    padding: 0 4px;
-    border-radius: 20px;
-    background: #ef4444;
-    color: white;
-    font-size: 11px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-
-.notification-badge[hidden] {
-    display: none;
-}
-
-.notification-panel {
-    position: absolute;
-    top: 52px;
-    right: 0;
-    width: 340px;
-    max-height: 420px;
-    overflow-y: auto;
+.stat-card {
     background: white;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
-    z-index: 1000;
-}
-
-.notification-panel[hidden] {
-    display: none;
-}
-
-.notification-header {
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px;
-    border-bottom: 1px solid #e5e7eb;
+    flex-direction: column;
+    gap: 12px;
 }
 
-.notification-header h3 {
-    margin: 0;
-    font-size: 15px;
-}
-
-.notification-header button {
-    border: none;
-    background: transparent;
-    color: #2563eb;
-    cursor: pointer;
-    font-size: 12px;
-}
-
-.notification-item {
-    padding: 13px 14px;
-    border-bottom: 1px solid #f1f5f9;
-    cursor: pointer;
-}
-
-.notification-item:hover {
-    background: #f8fafc;
-}
-
-.notification-item.unread {
-    background: #eff6ff;
-}
-
-.notification-item strong {
-    display: block;
-    margin-bottom: 5px;
+.stat-card span {
+    color: #64748b;
     font-size: 14px;
 }
 
-.notification-item p {
-    margin: 0 0 6px;
-    font-size: 13px;
-    color: #475569;
+.stat-card strong {
+    font-size: 25px;
+    color: #1e293b;
 }
 
-.notification-item small {
-    color: #94a3b8;
-    font-size: 11px;
+.order-toolbar input {
+    flex: 1;
+    min-width: 220px;
 }
 
-.notification-empty {
-    padding: 20px;
-    text-align: center;
-    color: #64748b;
-    font-size: 13px;
+.order-toolbar select,
+.form-group select {
+    padding: 11px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background: white;
+    font-size: 14px;
+    outline: none;
 }
 
-@media (max-width: 560px) {
-    .notification-panel {
-        position: fixed;
-        top: 70px;
-        right: 10px;
-        left: 10px;
-        width: auto;
-        max-width: none;
+.order-toolbar select:focus,
+.form-group select:focus {
+    border-color: #2563eb;
+}
+
+.order-status-btn {
+    background: #2563eb;
+}
+
+.order-modal-content {
+    max-width: 850px;
+}
+
+.order-information {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 15px;
+    margin-bottom: 25px;
+}
+
+.order-information p {
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.order-items-title {
+    margin-bottom: 15px;
+    font-size: 17px;
+}
+
+.order-modal-content .table-container {
+    margin-bottom: 10px;
+}
+
+@media (max-width: 768px) {
+    .content {
+        padding: 15px;
+    }
+
+    .order-information {
+        grid-template-columns: 1fr;
+    }
+
+    .order-toolbar {
+        flex-direction: column;
+    }
+
+    .order-toolbar input,
+    .order-toolbar select,
+    .order-toolbar button {
+        width: 100%;
     }
 }

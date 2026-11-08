@@ -20,10 +20,4 @@ public class AdminPageController {
     public String showOrdersPage() {
         return "admin/orders";
     }
-
-    @GetMapping("/admin/orders/{id}")
-    public String showOrderDetailPage() {
-        return "admin/order-detail";
-    }
-
 }
