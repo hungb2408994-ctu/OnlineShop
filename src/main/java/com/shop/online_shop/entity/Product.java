@@ -38,6 +38,10 @@ public class Product {
         if (createdAt == null) {
             createdAt = LocalDateTime.now();
         }
+
+        if (status == null || status.isBlank()) {
+            status = "ACTIVE";
+        }
     }
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -46,6 +50,9 @@ public class Product {
 
     @Column(name = "variant_name")
     private String variantName;
+
+    @Column(name = "status", nullable = false, length = 20)
+    private String status = "ACTIVE";
 
     // Getter và Setter
     public Long getId() {
@@ -125,6 +132,14 @@ public class Product {
 
     public void setVariantName(String variantName) {
         this.variantName = variantName;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
 }

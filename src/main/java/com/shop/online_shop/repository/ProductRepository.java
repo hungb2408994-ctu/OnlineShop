@@ -1,4 +1,3 @@
-
 package com.shop.online_shop.repository;
 
 import com.shop.online_shop.entity.Product;
@@ -25,11 +24,15 @@ public interface ProductRepository
             BigDecimal maxPrice
     );
 
-    // Tìm kiếm kết hợp nhiều điều kiện
+    // Tìm kiếm và lọc theo thông tin sản phẩm hoặc nhóm sản phẩm
     @Query("""
         SELECT p FROM Product p
-        WHERE (:keyword IS NULL OR
-               LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%')))
+        LEFT JOIN FETCH p.productModel pm
+        WHERE (
+            :keyword IS NULL
+            OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+            OR LOWER(pm.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        )
         AND (:categoryId IS NULL OR p.categoryId = :categoryId)
         AND (:minPrice IS NULL OR p.price >= :minPrice)
         AND (:maxPrice IS NULL OR p.price <= :maxPrice)
@@ -40,4 +43,35 @@ public interface ProductRepository
             @Param("minPrice") BigDecimal minPrice,
             @Param("maxPrice") BigDecimal maxPrice
     );
+
+
+    @Query("""
+        SELECT p FROM Product p
+        LEFT JOIN FETCH p.productModel pm
+        WHERE p.status = 'ACTIVE'
+        AND (
+                :keyword IS NULL
+                OR LOWER(p.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+                OR LOWER(pm.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
+        )
+        AND (:categoryId IS NULL OR p.categoryId = :categoryId)
+        AND (:minPrice IS NULL OR p.price >= :minPrice)
+        AND (:maxPrice IS NULL OR p.price <= :maxPrice)
+        """)
+        List<Product> searchAndFilterActive(
+                @Param("keyword") String keyword,
+                @Param("categoryId") Long categoryId,
+                @Param("minPrice") BigDecimal minPrice,
+                @Param("maxPrice") BigDecimal maxPrice
+        );
+
+        // Lấy tất cả sản phẩm đang bán
+        List<Product> findByStatus(String status);
+
+        // Lấy sản phẩm đang bán theo danh mục
+        List<Product> findByCategoryIdAndStatus(
+                Long categoryId,
+                String status
+        );
+
 }

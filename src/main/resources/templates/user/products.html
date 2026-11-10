@@ -294,24 +294,35 @@
 
                     <h3>
                         <a th:href="@{/products/{id}(id=${product.id})}"
-                           th:text="${product.name}">
+                        th:text="${product.name}">
                             Tên sản phẩm
                         </a>
                     </h3>
 
                     <p class="description"
-                       th:text="${product.description}">
+                    th:text="${product.description}">
                         Mô tả sản phẩm
                     </p>
 
+                    <!-- HIỂN THỊ SỐ PHIÊN BẢN -->
+                    <p class="variant-badge"
+                    th:if="${product.grouped}">
+                        <span th:text="${product.variantCount}"></span>
+                        phiên bản
+                    </p>
+
+                    <!-- GIÁ SẢN PHẨM -->
                     <p class="price">
+                        <span th:if="${product.grouped}">Từ </span>
                         <span th:text="${#numbers.formatDecimal(
                             product.price, 0, 'COMMA', 0, 'POINT'
                         )}"></span> ₫
                     </p>
 
+                    <!-- TỒN KHO -->
                     <p class="stock">
-                        Còn hàng:
+                        <span th:if="${product.grouped}">Tổng tồn kho: </span>
+                        <span th:unless="${product.grouped}">Còn hàng: </span>
                         <span th:text="${product.quantity}"></span>
                     </p>
 

@@ -122,4 +122,63 @@ public class ProductServiceImpl implements ProductService {
         Product product = getProductById(id);
         productRepository.delete(product);
     }
+
+    @Override
+    public List<Product> getAllActiveProducts() {
+        return productRepository.findByStatus("ACTIVE");
+    }
+
+    @Override
+    public List<Product> getActiveProductsByCategory(Long categoryId) {
+        return productRepository.findByCategoryIdAndStatus(
+                categoryId,
+                "ACTIVE"
+        );
+    }
+
+    @Override
+    public List<Product> searchAndFilterActive(
+            String keyword,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
+
+        // Chuẩn hóa từ khóa
+        if (keyword != null) {
+            keyword = keyword.trim();
+
+            if (keyword.isEmpty()) {
+                keyword = null;
+            }
+        }
+
+        // Kiểm tra giá âm
+        if (minPrice != null && minPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối thiểu không được nhỏ hơn 0."
+            );
+        }
+
+        if (maxPrice != null && maxPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối đa không được nhỏ hơn 0."
+            );
+        }
+
+        // Kiểm tra khoảng giá
+        if (minPrice != null && maxPrice != null
+                && minPrice.compareTo(maxPrice) > 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối thiểu không được lớn hơn giá tối đa."
+            );
+        }
+
+        return productRepository.searchAndFilterActive(
+                keyword,
+                categoryId,
+                minPrice,
+                maxPrice
+        );
+    }
+
 }

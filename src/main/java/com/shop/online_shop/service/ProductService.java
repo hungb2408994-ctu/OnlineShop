@@ -38,4 +38,19 @@ public interface ProductService {
             BigDecimal minPrice,
             BigDecimal maxPrice
     );
+
+    // Lấy tất cả sản phẩm đang bán
+    List<Product> getAllActiveProducts();
+
+    // Lấy sản phẩm đang bán theo danh mục
+    List<Product> getActiveProductsByCategory(Long categoryId);
+
+    // Tìm kiếm và lọc sản phẩm đang bán
+    List<Product> searchAndFilterActive(
+            String keyword,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice
+    );
+
 }
