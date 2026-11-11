@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "product_models")
 public class ProductModel {
@@ -25,6 +27,7 @@ public class ProductModel {
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "productModel")
     private List<Product> variants = new ArrayList<>();
 

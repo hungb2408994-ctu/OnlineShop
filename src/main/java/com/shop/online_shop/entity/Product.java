@@ -5,6 +5,8 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 @Entity
 @Table(name = "products")
 public class Product {
@@ -40,6 +42,7 @@ public class Product {
         }
     }
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "product_model_id")
     private ProductModel productModel;
@@ -55,6 +58,7 @@ public class Product {
     public void setId(Long id) {
         this.id = id;
     }
+
     public Long getCategoryId() {
         return categoryId;
     }
@@ -104,7 +108,7 @@ public class Product {
     }
 
     public LocalDateTime getCreatedAt() {
-    return createdAt;
+        return createdAt;
     }
 
     public void setCreatedAt(LocalDateTime createdAt) {
