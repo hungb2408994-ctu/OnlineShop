@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin - Quản lý người dùng</title>
+    <link rel="stylesheet" th:href="@{/css/admin.css}" />
+  </head>
+  <body>
+    <div class="admin-container">
+      <aside class="sidebar">
+        <h2>Online Shop</h2>
+
+        <nav>
+          <a href="/admin/products">Quản lý sản phẩm</a>
+          <a href="/admin/categories">Quản lý danh mục</a>
+          <a href="/admin/orders">Quản lý đơn hàng</a>
+          <a href="/admin/users" class="active">Quản lý người dùng</a>
+        </nav>
+      </aside>
+
+      <main class="main-content">
+        <header class="topbar">
+          <h2>Quản lý người dùng</h2>
+          <span>Admin</span>
+        </header>
+
+        <section class="content">
+          <!-- Thống kê -->
+          <div class="user-statistics">
+            <div class="user-stat-card">
+              <span>Tổng người dùng</span>
+              <strong id="totalUsers">0</strong>
+            </div>
+
+            <div class="user-stat-card">
+              <span>Đang hoạt động</span>
+              <strong id="activeUsers">0</strong>
+            </div>
+
+            <div class="user-stat-card">
+              <span>Đã khóa</span>
+              <strong id="blockedUsers">0</strong>
+            </div>
+
+            <div class="user-stat-card">
+              <span>Quản trị viên</span>
+              <strong id="adminUsers">0</strong>
+            </div>
+          </div>
+
+          <!-- Tìm kiếm -->
+          <div class="toolbar user-toolbar">
+            <input
+              type="text"
+              id="searchUserInput"
+              placeholder="Tìm kiếm theo họ tên hoặc email..."
+            />
+
+            <button id="searchUserBtn">Tìm kiếm</button>
+            <button id="resetUserBtn" class="reset-user-btn">Làm mới</button>
+          </div>
+
+          <p id="userMessage" class="user-message"></p>
+
+          <!-- Bảng người dùng -->
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Họ tên</th>
+                  <th>Email</th>
+                  <th>Số điện thoại</th>
+                  <th>Vai trò</th>
+                  <th>Trạng thái</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+
+              <tbody id="userTableBody">
+                <tr>
+                  <td colspan="7">Đang tải dữ liệu...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- Modal chi tiết người dùng -->
+    <div id="userDetailModal" class="modal hidden">
+      <div class="modal-content user-modal-content">
+        <div class="modal-header">
+          <h3>Chi tiết người dùng</h3>
+          <button type="button" id="closeUserDetailBtn">×</button>
+        </div>
+
+        <div id="userDetailContent" class="user-detail-content"></div>
+
+        <div class="modal-actions">
+          <button type="button" id="closeUserDetailBtn2">Đóng</button>
+        </div>
+      </div>
+    </div>
+
+    <script th:src="@{/js/admin-users.js}"></script>
+  </body>
+</html>
