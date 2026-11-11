@@ -53,6 +53,11 @@ public class CartService {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new RuntimeException("Không tìm thấy sản phẩm!"));
 
+        // Không cho phép thêm sản phẩm đã bị ẩn
+        if (!"ACTIVE".equals(product.getStatus())) {
+        throw new RuntimeException("Sản phẩm hiện không còn kinh doanh!");
+        }
+
         // 4. Kiểm tra tồn kho
         if (product.getQuantity() == null || product.getQuantity() < quantity) {
             throw new RuntimeException("Số lượng sản phẩm trong kho không đủ!");
@@ -163,6 +168,11 @@ public class CartService {
 
         // 4. Kiểm tra tồn kho
         Product product = cartItem.getProduct();
+
+        // Không cho phép cập nhật sản phẩm đã bị ẩn
+        if (!"ACTIVE".equals(product.getStatus())) {
+                throw new RuntimeException("Sản phẩm hiện không còn kinh doanh!");
+        }
 
         if (product.getQuantity() == null ||
                 quantity > product.getQuantity()) {

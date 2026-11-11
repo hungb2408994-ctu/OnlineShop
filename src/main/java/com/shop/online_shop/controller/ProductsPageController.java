@@ -1,7 +1,11 @@
+
 package com.shop.online_shop.controller;
 
+import com.shop.online_shop.dto.ProductCatalogItem;
 import com.shop.online_shop.entity.Product;
+import com.shop.online_shop.entity.ProductModel;
 import com.shop.online_shop.repository.CategoryRepository;
+import com.shop.online_shop.repository.ProductModelRepository;
 import com.shop.online_shop.service.ProductService;
 
 import org.springframework.stereotype.Controller;
@@ -12,19 +16,27 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Controller
 public class ProductsPageController {
 
     private final ProductService productService;
     private final CategoryRepository categoryRepository;
+    private final ProductModelRepository productModelRepository;
 
     public ProductsPageController(
             ProductService productService,
-            CategoryRepository categoryRepository) {
+            CategoryRepository categoryRepository,
+            ProductModelRepository productModelRepository) {
+
         this.productService = productService;
         this.categoryRepository = categoryRepository;
+        this.productModelRepository = productModelRepository;
     }
 
     @GetMapping("/products")
@@ -38,70 +50,103 @@ public class ProductsPageController {
             @RequestParam(defaultValue = "12") int size,
             Model model) {
 
-        // Lấy danh sách danh mục cho sidebar
         model.addAttribute("categories", categoryRepository.findAll());
 
-        // Lấy 8 sản phẩm bán chạy nhất
-        model.addAttribute(
-                "bestSellingProducts",
-                productService.getBestSellingProducts(8)
-        );
-
-        // Khởi tạo danh sách sản phẩm rỗng
-        List<Product> products = new ArrayList<>();
+        List<ProductCatalogItem> products = new ArrayList<>();
         String filterError = null;
 
         try {
-            List<Product> result;
+            // Lấy sản phẩm ACTIVE thỏa mãn điều kiện tìm kiếm và lọc.
+            List<Product> result = productService.searchAndFilterActive(
+                    keyword,
+                    categoryId,
+                    minPrice,
+                    maxPrice
+            );
 
-            if ("best-selling".equals(sort)) {
-                result = productService.getBestSellingProducts(
-                        keyword,
-                        categoryId,
-                        minPrice,
-                        maxPrice
-                );
-            } else {
-                result = productService.searchAndFilter(
-                        keyword,
-                        categoryId,
-                        minPrice,
-                        maxPrice
-                );
-            }
+            if (result != null && !result.isEmpty()) {
 
-            // Chỉ thêm sản phẩm nếu kết quả không null
-            if (result != null) {
-                products.addAll(result);
+                // Lấy các nhóm sản phẩm và biến thể.
+                List<ProductModel> allModels =
+                        productModelRepository.findAll();
+
+                Map<Long, ProductModel> modelMap = new LinkedHashMap<>();
+
+                for (ProductModel productModel : allModels) {
+                    modelMap.put(productModel.getId(), productModel);
+                }
+
+                // Ghi nhận các nhóm có ít nhất một sản phẩm phù hợp.
+                Set<Long> matchedModelIds = new LinkedHashSet<>();
+
+                for (Product product : result) {
+
+                    if (product.getProductModel() != null) {
+
+                        Long productModelId =
+                                product.getProductModel().getId();
+
+                        matchedModelIds.add(productModelId);
+
+                    } else {
+                        // Sản phẩm độc lập.
+                        products.add(new ProductCatalogItem(product));
+                    }
+                }
+
+                // Mỗi nhóm chỉ hiển thị một thẻ sản phẩm.
+                for (Long productModelId : matchedModelIds) {
+
+                    ProductModel productModel =
+                            modelMap.get(productModelId);
+
+                    if (productModel != null
+                            && productModel.getVariants() != null
+                            && !productModel.getVariants().isEmpty()) {
+
+                        products.add(
+                                new ProductCatalogItem(productModel)
+                        );
+                    }
+                }
             }
 
         } catch (IllegalArgumentException e) {
             filterError = e.getMessage();
         }
 
-        // Sắp xếp theo giá
+        // Sắp xếp danh sách sản phẩm.
         if ("price-asc".equals(sort)) {
-            products.sort(Comparator.comparing(Product::getPrice));
-        } else if ("price-desc".equals(sort)) {
-            products.sort(
-                    Comparator.comparing(Product::getPrice).reversed()
-            );
-        } else if ("newest".equals(sort)) {
+
             products.sort(
                     Comparator.comparing(
-                            Product::getCreatedAt,
+                            ProductCatalogItem::getPrice,
+                            Comparator.nullsLast(Comparator.naturalOrder())
+                    )
+            );
+
+        } else if ("price-desc".equals(sort)) {
+
+            products.sort(
+                    Comparator.comparing(
+                            ProductCatalogItem::getPrice,
+                            Comparator.nullsLast(Comparator.reverseOrder())
+                    )
+            );
+
+        } else if ("newest".equals(sort)) {
+
+            products.sort(
+                    Comparator.comparing(
+                            ProductCatalogItem::getCreatedAt,
                             Comparator.nullsLast(Comparator.reverseOrder())
                     )
             );
         }
-        // best-selling đã được sắp xếp trong câu truy vấn SQL
 
-
-        // Truyền dữ liệu sang Thymeleaf
-        model.addAttribute("products", products);
+        // Thông tin tìm kiếm và lọc.
         model.addAttribute("filterError", filterError);
 
-        // Thông tin danh mục đang chọn
         String selectedCategoryName = null;
 
         if (categoryId != null) {
@@ -112,40 +157,38 @@ public class ProductsPageController {
 
         model.addAttribute("selectedCategoryId", categoryId);
         model.addAttribute("selectedCategoryName", selectedCategoryName);
-
-        // Giữ lại điều kiện tìm kiếm và sắp xếp
         model.addAttribute("keyword", keyword);
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);
         model.addAttribute("sort", sort);
 
-        // Giới hạn số sản phẩm mỗi trang
+        // Phân trang.
         size = Math.max(1, Math.min(size, 60));
 
-        // Tính tổng số sản phẩm và số trang
         int totalProducts = products.size();
         int totalPages = (int) Math.ceil((double) totalProducts / size);
 
-        // Xác định vùng trang ở giữa, quanh trang hiện tại
-        // Tính vùng trang ở giữa, tránh trùng với 3 trang đầu và cuối
-        int startPage = Math.max(3, page - 1);
-        int endPage = Math.min(totalPages - 4, page + 1);
+        // Đảm bảo page nằm trong phạm vi hợp lệ.
+        if (totalPages > 0) {
+            page = Math.max(0, Math.min(page, totalPages - 1));
+        } else {
+            page = 0;
+        }
 
-        // Tạo danh sách số trang cần hiển thị (đánh số từ 0)
         List<Integer> visiblePages = new ArrayList<>();
 
         if (totalPages <= 5) {
-            // Tối đa 5 trang: hiển thị tất cả
+
             for (int i = 0; i < totalPages; i++) {
                 visiblePages.add(i);
             }
+
         } else {
-            // 3 trang đầu
+
             for (int i = 0; i < 3; i++) {
                 visiblePages.add(i);
             }
 
-            // Các trang quanh trang hiện tại
             int start = Math.max(3, page - 1);
             int end = Math.min(totalPages - 4, page + 1);
 
@@ -153,30 +196,21 @@ public class ProductsPageController {
                 visiblePages.add(i);
             }
 
-            // 3 trang cuối
             for (int i = totalPages - 3; i < totalPages; i++) {
                 visiblePages.add(i);
             }
         }
+
         model.addAttribute("visiblePages", visiblePages);
 
-        // Đảm bảo page không nằm ngoài phạm vi
-        if (totalPages > 0) {
-            page = Math.max(0, Math.min(page, totalPages - 1));
-        } else {
-            page = 0;
-        }
-
-        // Xác định vị trí sản phẩm cần lấy
         int fromIndex = page * size;
         int toIndex = Math.min(fromIndex + size, totalProducts);
 
-        // Lấy sản phẩm thuộc trang hiện tại
-        List<Product> pagedProducts = new ArrayList<>(
+        // Lưu ý: phải là ProductCatalogItem, không phải Product.
+        List<ProductCatalogItem> pagedProducts = new ArrayList<>(
                 products.subList(fromIndex, toIndex)
         );
 
-        // Đưa dữ liệu lên giao diện
         model.addAttribute("products", pagedProducts);
         model.addAttribute("totalProducts", totalProducts);
         model.addAttribute("currentPage", page);

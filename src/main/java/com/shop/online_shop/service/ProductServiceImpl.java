@@ -45,35 +45,8 @@ public class ProductServiceImpl implements ProductService {
             BigDecimal minPrice,
             BigDecimal maxPrice) {
 
-        // Chuẩn hóa từ khóa
-        if (keyword != null) {
-            keyword = keyword.trim();
-
-            if (keyword.isEmpty()) {
-                keyword = null;
-            }
-        }
-
-        // Kiểm tra giá âm
-        if (minPrice != null && minPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException(
-                    "Giá tối thiểu không được nhỏ hơn 0."
-            );
-        }
-
-        if (maxPrice != null && maxPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException(
-                    "Giá tối đa không được nhỏ hơn 0."
-            );
-        }
-
-        // Kiểm tra khoảng giá
-        if (minPrice != null && maxPrice != null
-                && minPrice.compareTo(maxPrice) > 0) {
-            throw new IllegalArgumentException(
-                    "Giá tối thiểu không được lớn hơn giá tối đa."
-            );
-        }
+        validatePriceRange(minPrice, maxPrice);
+        keyword = normalizeKeyword(keyword);
 
         return productRepository.searchAndFilter(
                 keyword,
@@ -125,6 +98,41 @@ public class ProductServiceImpl implements ProductService {
         productRepository.delete(product);
     }
 
+    // Lấy tất cả sản phẩm đang bán.
+    @Override
+    public List<Product> getAllActiveProducts() {
+        return productRepository.findByStatus("ACTIVE");
+    }
+
+    // Lấy sản phẩm đang bán theo danh mục.
+    @Override
+    public List<Product> getActiveProductsByCategory(Long categoryId) {
+        return productRepository.findByCategoryIdAndStatus(
+                categoryId,
+                "ACTIVE"
+        );
+    }
+
+    // Tìm kiếm và lọc sản phẩm đang bán.
+    @Override
+    public List<Product> searchAndFilterActive(
+            String keyword,
+            Long categoryId,
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
+
+        validatePriceRange(minPrice, maxPrice);
+        keyword = normalizeKeyword(keyword);
+
+        return productRepository.searchAndFilterActive(
+                keyword,
+                categoryId,
+                minPrice,
+                maxPrice
+        );
+    }
+
+    // Lấy danh sách sản phẩm bán chạy nhất theo số lượng giới hạn.
     @Override
     public List<Product> getBestSellingProducts(int limit) {
 
@@ -137,6 +145,7 @@ public class ProductServiceImpl implements ProductService {
         return productRepository.findBestSellingProducts(pageable);
     }
 
+    // Tìm kiếm và lọc sản phẩm theo số lượng bán.
     @Override
     public List<Product> getBestSellingProducts(
             String keyword,
@@ -144,35 +153,8 @@ public class ProductServiceImpl implements ProductService {
             BigDecimal minPrice,
             BigDecimal maxPrice) {
 
-        // Chuẩn hóa từ khóa
-        if (keyword != null) {
-            keyword = keyword.trim();
-
-            if (keyword.isEmpty()) {
-                keyword = null;
-            }
-        }
-
-        // Kiểm tra giá âm
-        if (minPrice != null && minPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException(
-                    "Giá tối thiểu không được nhỏ hơn 0."
-            );
-        }
-
-        if (maxPrice != null && maxPrice.compareTo(BigDecimal.ZERO) < 0) {
-            throw new IllegalArgumentException(
-                    "Giá tối đa không được nhỏ hơn 0."
-            );
-        }
-
-        // Kiểm tra khoảng giá
-        if (minPrice != null && maxPrice != null
-                && minPrice.compareTo(maxPrice) > 0) {
-            throw new IllegalArgumentException(
-                    "Giá tối thiểu không được lớn hơn giá tối đa."
-            );
-        }
+        validatePriceRange(minPrice, maxPrice);
+        keyword = normalizeKeyword(keyword);
 
         return productRepository.searchAndFilterByBestSelling(
                 keyword,
@@ -182,4 +164,45 @@ public class ProductServiceImpl implements ProductService {
         );
     }
 
+    // Chuẩn hóa từ khóa tìm kiếm.
+    private String normalizeKeyword(String keyword) {
+
+        if (keyword != null) {
+            keyword = keyword.trim();
+
+            if (keyword.isEmpty()) {
+                keyword = null;
+            }
+        }
+
+        return keyword;
+    }
+
+    // Kiểm tra điều kiện lọc giá.
+    private void validatePriceRange(
+            BigDecimal minPrice,
+            BigDecimal maxPrice) {
+
+        if (minPrice != null
+                && minPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối thiểu không được nhỏ hơn 0."
+            );
+        }
+
+        if (maxPrice != null
+                && maxPrice.compareTo(BigDecimal.ZERO) < 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối đa không được nhỏ hơn 0."
+            );
+        }
+
+        if (minPrice != null
+                && maxPrice != null
+                && minPrice.compareTo(maxPrice) > 0) {
+            throw new IllegalArgumentException(
+                    "Giá tối thiểu không được lớn hơn giá tối đa."
+            );
+        }
+    }
 }

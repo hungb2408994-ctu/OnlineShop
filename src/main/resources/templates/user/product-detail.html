@@ -4,7 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title th:text="${product.name} + ' | Online Shop'">Chi tiết sản phẩm</title>
+    <title th:text="${productModel != null ? productModel.name : product.name} + ' | Online Shop'">
+        Chi tiết sản phẩm
+    </title>
 
     <style>
         * {
@@ -104,6 +106,53 @@
             border-radius: 8px;
             font-size: 14px;
             font-weight: 600;
+        }
+
+        .variant-section {
+            margin-top: 25px;
+        }
+
+        .variant-title {
+            display: block;
+            margin-bottom: 12px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .variant-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .variant-option {
+            min-width: 90px;
+            padding: 12px 18px;
+            border: 1px solid #cbd5e1;
+            border-radius: 9px;
+            background: white;
+            color: #334155;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .variant-option:hover {
+            border-color: #2563eb;
+            background: #eff6ff;
+        }
+
+        .variant-option.active {
+            border: 2px solid #2563eb;
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .variant-option:disabled {
+            opacity: 0.45;
+            cursor: not-allowed;
+            text-decoration: line-through;
         }
 
         .cart-section {
@@ -266,54 +315,81 @@
 </head>
 
 <body>
-
 <div class="container">
 
-    <a href="/" class="back-link">
-        ← Quay lại trang chủ
+    <a href="/products" class="back-link">
+        ← Quay lại danh sách sản phẩm
     </a>
 
     <div class="product-detail"
          id="productDetail"
          th:attr="data-product-id=${product.id},
-                  data-stock=${product.quantity}">
+                  data-stock=${product.quantity},
+                  data-price=${product.price}">
 
         <div class="product-image">
+            <img id="productImage"
+                 th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                 th:src="${product.imageUrl}"
+                 th:alt="${product.name}">
 
-            <img
-                th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                th:src="${product.imageUrl}"
-                th:alt="${product.name}">
-
-            <img
-                th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                src="https://placehold.co/500x400?text=No+Image"
-                alt="No image">
-
+            <img id="productImageFallback"
+                 th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                 src="https://placehold.co/500x400?text=No+Image"
+                 alt="No image">
         </div>
 
         <div class="product-info">
 
             <span class="product-label">Chi tiết sản phẩm</span>
 
-            <h1 th:text="${product.name}">
+            <h1 id="productName"
+                th:text="${productModel != null ? productModel.name : product.name}">
                 Tên sản phẩm
             </h1>
 
+            <div class="variant-section"
+                 th:if="${productModel != null and #lists.size(variants) > 0}">
+
+                <span class="variant-title">Chọn phiên bản:</span>
+
+                <div class="variant-options">
+                    <button type="button"
+                            class="variant-option"
+                            th:each="variant : ${variants}"
+                            th:classappend="${variant.id == product.id} ? ' active' : ''"
+                            th:attr="data-product-id=${variant.id},
+                                     data-price=${variant.price},
+                                     data-stock=${variant.quantity},
+                                     data-name=${variant.name},
+                                     data-image-url=${variant.imageUrl},
+                                     data-variant-name=${variant.variantName != null ? variant.variantName : variant.name}">
+
+                        <span th:text="${variant.variantName != null ? variant.variantName : variant.name}">
+                            Phiên bản
+                        </span>
+                    </button>
+                </div>
+            </div>
+
             <p class="price">
-                <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
+                <span id="productPrice"
+                      th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}">
+                </span>
                 VND
             </p>
 
             <p class="description"
-               th:text="${product.description != null and !product.description.isEmpty()
-                    ? product.description : 'Sản phẩm hiện chưa có mô tả.'}">
+               th:text="${productModel != null and productModel.description != null and !productModel.description.isEmpty()
+                    ? productModel.description
+                    : (product.description != null and !product.description.isEmpty()
+                        ? product.description : 'Sản phẩm hiện chưa có mô tả.')}">
                 Mô tả sản phẩm
             </p>
 
             <div class="stock">
                 Còn hàng:
-                <span th:text="${product.quantity}"></span>
+                <strong id="productStock" th:text="${product.quantity}">0</strong>
             </div>
 
             <div class="cart-section">
@@ -325,51 +401,43 @@
                 <div class="quantity-control">
                     <button type="button" id="decreaseButton">−</button>
 
-                    <input
-                        type="number"
-                        id="quantityInput"
-                        value="1"
-                        min="1"
-                        th:attr="max=${product.quantity}"
-                        readonly>
+                    <input type="number"
+                           id="quantityInput"
+                           value="1"
+                           min="1"
+                           th:attr="max=${product.quantity}"
+                           readonly>
 
                     <button type="button" id="increaseButton">+</button>
                 </div>
 
                 <p class="quantity-hint">
                     Bạn có thể chọn tối đa
-                    <strong th:text="${product.quantity}">0</strong>
+                    <strong id="maxStock" th:text="${product.quantity}">0</strong>
                     sản phẩm.
                 </p>
 
                 <div class="cart-actions">
-
-                    <button
-                        type="button"
-                        class="add-cart-button"
-                        id="addToCartButton"
-                        th:disabled="${product.quantity == null or product.quantity <= 0}">
+                    <button type="button"
+                            class="add-cart-button"
+                            id="addToCartButton"
+                            th:disabled="${product.quantity == null or product.quantity <= 0}">
                         🛒 Thêm vào giỏ hàng
                     </button>
 
                     <a href="/cart" class="view-cart-button">
                         Xem giỏ hàng
                     </a>
-
                 </div>
 
                 <div id="cartMessage" class="cart-message"></div>
 
             </div>
-
         </div>
-
     </div>
-
 </div>
 
 <script src="/js/session.js"></script>
 <script src="/js/product-detail.js"></script>
-
 </body>
 </html>

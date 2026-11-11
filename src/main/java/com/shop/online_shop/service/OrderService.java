@@ -71,6 +71,14 @@ public class OrderService {
                     cartItem.getProduct().getId()
             ).orElseThrow(() -> new RuntimeException("Product not found!"));
 
+            // Không cho phép thanh toán sản phẩm đã bị ẩn
+                if (!"ACTIVE".equals(product.getStatus())) {
+                throw new RuntimeException(
+                        "Sản phẩm " + product.getName()
+                        + " hiện không còn kinh doanh. Vui lòng xóa khỏi giỏ hàng!"
+                );
+                }
+
             Integer quantity = cartItem.getQuantity();
 
             if (quantity == null || quantity <= 0) {
