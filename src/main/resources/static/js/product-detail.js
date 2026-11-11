@@ -150,11 +150,11 @@ document.addEventListener("DOMContentLoaded", function () {
     // Thêm phiên bản đang chọn vào giỏ hàng
     addToCartButton.addEventListener("click", async function () {
 
-        const token = localStorage.getItem("accessToken");
+        const token = getAccessToken();
 
         if (!token) {
             alert("Vui lòng đăng nhập để thêm sản phẩm vào giỏ hàng.");
-            window.location.href = "/login";
+            redirectToLogin(false);
             return;
         }
 
@@ -189,11 +189,10 @@ document.addEventListener("DOMContentLoaded", function () {
             });
 
             if (userResponse.status === 401 || userResponse.status === 403) {
-                localStorage.removeItem("accessToken");
-                localStorage.removeItem("currentUser");
+                clearSession();
 
                 alert("Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.");
-                window.location.href = "/login";
+                redirectToLogin(true);
                 return;
             }
 

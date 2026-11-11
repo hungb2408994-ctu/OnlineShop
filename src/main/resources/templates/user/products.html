@@ -48,7 +48,7 @@
 
         </div>
 
-        <div class="header-account">
+        <div class="header-account" id="headerAccount">
             <span class="header-icon">♙</span>
             <div>
                 <a href="/login">Đăng nhập</a>
@@ -107,21 +107,23 @@
 
         <h2>Danh mục sản phẩm</h2>
 
-        <a href="/products"
-           class="category-link"
-           th:classappend="${selectedCategoryId == null} ? ' active' : ''">
+        <div class="category-scroll">
 
-            Tất cả sản phẩm
-        </a>
+            <a href="/products"
+            class="category-link"
+            th:classappend="${selectedCategoryId == null} ? ' active' : ''">
+                Tất cả sản phẩm
+            </a>
 
-        <a th:each="category : ${categories}"
-           th:href="@{/products(categoryId=${category.id})}"
-           class="category-link"
-           th:classappend="${selectedCategoryId != null and selectedCategoryId == category.id} ? ' active' : ''"
-           th:text="${category.name}">
+            <a th:each="category : ${categories}"
+            th:href="@{/products(categoryId=${category.id})}"
+            class="category-link"
+            th:classappend="${selectedCategoryId != null and selectedCategoryId == category.id} ? ' active' : ''"
+            th:text="${category.name}">
+                Tên danh mục
+            </a>
 
-            Tên danh mục
-        </a>
+        </div>
 
     </aside>
 
@@ -139,10 +141,9 @@
                 </h1>
 
                 <span class="product-count">
-                    (<span th:text="${products != null ? #lists.size(products) : 0}">0</span>
+                    (<span th:text="${totalProducts}">0</span>
                     sản phẩm)
                 </span>
-
             </div>
 
             <p>Khám phá và lựa chọn sản phẩm phù hợp với bạn.</p>
@@ -203,10 +204,17 @@
                     Giá giảm dần
                 </a>
 
-                <span class="sort-option disabled"
-                      title="Cần bổ sung dữ liệu số lượng bán">
+                <a th:href="@{/products(
+                    categoryId=${selectedCategoryId},
+                    keyword=${keyword},
+                    minPrice=${minPrice},
+                    maxPrice=${maxPrice},
+                    sort='best-selling'
+                )}"
+                class="sort-option"
+                th:classappend="${sort == 'best-selling'} ? ' active' : ''">
                     Bán chạy nhất
-                </span>
+                </a>
             </div>
 
         </div>
@@ -215,6 +223,13 @@
         <form class="filter-form"
               method="get"
               th:action="@{/products}">
+
+            <input
+                type="hidden"
+                name="sort"
+                th:value="${sort}"
+                th:if="${sort != null}"
+            >
 
             <input
                 type="hidden"
@@ -332,6 +347,99 @@
 
         </div>
 
+        <!-- Pagination -->
+        <div class="pagination"
+            th:if="${totalPages > 1}">
+
+            <!-- First page -->
+            <a th:href="@{/products(
+                page=0,
+                size=${pageSize},
+                keyword=${keyword},
+                categoryId=${selectedCategoryId},
+                minPrice=${minPrice},
+                maxPrice=${maxPrice},
+                sort=${sort}
+            )}"
+            class="pagination-btn"
+            th:classappend="${currentPage == 0} ? ' disabled' : ''">
+                &laquo; Đầu
+            </a>
+
+            <!-- Previous page -->
+            <a th:if="${hasPrevious}"
+            th:href="@{/products(
+                page=${currentPage - 1},
+                size=${pageSize},
+                keyword=${keyword},
+                categoryId=${selectedCategoryId},
+                minPrice=${minPrice},
+                maxPrice=${maxPrice},
+                sort=${sort}
+            )}"
+            class="pagination-btn">
+                &lsaquo;
+            </a>
+
+            <!-- Page numbers -->
+            <th:block th:each="i, stat : ${visiblePages}">
+
+                <!-- Ellipsis khi có khoảng trống -->
+                <span class="pagination-ellipsis"
+                    th:if="${stat.index > 0
+                            and i - visiblePages[stat.index - 1] > 1}">
+                    ...
+                </span>
+
+                <!-- Page number -->
+                <a th:href="@{/products(
+                    page=${i},
+                    size=${pageSize},
+                    keyword=${keyword},
+                    categoryId=${selectedCategoryId},
+                    minPrice=${minPrice},
+                    maxPrice=${maxPrice},
+                    sort=${sort}
+                )}"
+                th:text="${i + 1}"
+                class="pagination-btn"
+                th:classappend="${i == currentPage} ? ' active' : ''">
+                </a>
+
+            </th:block>
+
+            <!-- Next page -->
+            <a th:if="${hasNext}"
+            th:href="@{/products(
+                page=${currentPage + 1},
+                size=${pageSize},
+                keyword=${keyword},
+                categoryId=${selectedCategoryId},
+                minPrice=${minPrice},
+                maxPrice=${maxPrice},
+                sort=${sort}
+            )}"
+            class="pagination-btn">
+                &rsaquo;
+            </a>
+
+            <!-- Last page -->
+            <a th:href="@{/products(
+                page=${totalPages - 1},
+                size=${pageSize},
+                keyword=${keyword},
+                categoryId=${selectedCategoryId},
+                minPrice=${minPrice},
+                maxPrice=${maxPrice},
+                sort=${sort}
+            )}"
+            class="pagination-btn"
+            th:classappend="${currentPage == totalPages - 1} ? ' disabled' : ''">
+                Cuối &raquo;
+            </a>
+
+        </div>
+
         <!-- EMPTY STATE -->
         <div class="empty"
              th:if="${#lists.isEmpty(products)}">
@@ -347,6 +455,9 @@
     </section>
 
 </main>
+
+<script th:src="@{/js/session.js}"></script>
+<script th:src="@{/js/header.js}"></script>
 
 </body>
 </html>

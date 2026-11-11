@@ -1,4 +1,11 @@
-// Hiển thị thông báo
+// ==========================================================
+// ĐĂNG NHẬP / ĐĂNG KÝ
+// ==========================================================
+
+const loginForm = document.getElementById("loginForm");
+const registerForm = document.getElementById("registerForm");
+
+// Hiển thị thông báo trên form
 function showAuthMessage(message, type) {
     const messageElement = document.getElementById("authMessage");
 
@@ -8,19 +15,102 @@ function showAuthMessage(message, type) {
     messageElement.className = "auth-message " + type;
 }
 
-// Xử lý đăng nhập
-const loginForm = document.getElementById("loginForm");
+// Bật/tắt trạng thái đang gửi của nút bấm
+function setButtonLoading(button, isLoading, loadingText, normalText) {
+    button.disabled = isLoading;
+    button.textContent = isLoading ? loadingText : normalText;
+}
 
+// Đọc nội dung JSON an toàn (server có thể trả về trang lỗi HTML)
+async function readResponseBody(response) {
+    try {
+        return await response.json();
+    } catch (error) {
+        return {};
+    }
+}
+
+// Chuyển thông báo lỗi kỹ thuật thành câu dễ hiểu
+function getErrorMessage(error) {
+    if (error instanceof TypeError) {
+        return "Không thể kết nối đến máy chủ. Vui lòng thử lại sau.";
+    }
+
+    return error.message || "Đã xảy ra lỗi. Vui lòng thử lại.";
+}
+
+// Sau khi đăng nhập: quay lại trang trước đó nếu có.
+// Không có trang chờ sẵn thì ADMIN vào thẳng trang quản trị, người dùng về trang chủ.
+function redirectAfterLogin() {
+    const next = getSafeNextPath();
+
+    if (next) {
+        window.location.replace(next);
+        return;
+    }
+
+    const user = getCurrentUser();
+
+    const defaultPath =
+        user && user.role === "ADMIN" ? "/admin/products" : "/";
+
+    window.location.replace(defaultPath);
+}
+
+// Giữ lại ?next= khi người dùng chuyển giữa trang đăng nhập và đăng ký
+function keepNextPath(link) {
+    if (!link) return;
+
+    const next = getSafeNextPath();
+
+    if (!next) return;
+
+    link.href = link.getAttribute("href") + "?next=" + encodeURIComponent(next);
+}
+
+// Hiển thị thông báo theo trạng thái được chuyển sang từ trang khác
+function showPageMessage() {
+    const params = new URLSearchParams(window.location.search);
+
+    if (params.get("expired") === "1") {
+        showAuthMessage(
+            "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+            "error"
+        );
+    } else if (params.get("registered") === "1") {
+        showAuthMessage(
+            "Đăng ký thành công! Vui lòng đăng nhập bằng tài khoản vừa tạo.",
+            "success"
+        );
+    }
+}
+
+// Người dùng đã đăng nhập thì không cần ở lại trang đăng nhập/đăng ký
+if ((loginForm || registerForm) && isLoggedIn()) {
+    redirectAfterLogin();
+} else {
+    showPageMessage();
+}
+
+// Xử lý đăng nhập
 if (loginForm) {
+
+    keepNextPath(document.getElementById("registerLink"));
+
     loginForm.addEventListener("submit", async function (event) {
         event.preventDefault();
 
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value;
 
-        const button = loginForm.querySelector("button");
-        button.disabled = true;
-        button.textContent = "Đang đăng nhập...";
+        if (!email || !password) {
+            showAuthMessage("Vui lòng nhập email và mật khẩu.", "error");
+            return;
+        }
+
+        const button = loginForm.querySelector("button[type='submit']");
+
+        setButtonLoading(button, true, "Đang đăng nhập...", "Đăng nhập");
 
         try {
             const response = await fetch("/api/auth/login", {
@@ -34,40 +124,35 @@ if (loginForm) {
                 })
             });
 
-            const data = await response.json();
+            const data = await readResponseBody(response);
 
             if (!response.ok) {
                 throw new Error(data.message || "Đăng nhập thất bại!");
             }
 
-            // Lưu JWT và thông tin người dùng
-            localStorage.setItem("accessToken", data.accessToken);
+            // Lưu JWT và thông tin người dùng vào phiên hiện tại
+            saveSession(data);
 
-            localStorage.setItem("currentUser", JSON.stringify({
-                userId: data.userId,
-                fullName: data.fullName,
-                email: data.email,
-                role: data.role
-            }));
+            showAuthMessage(
+                "Đăng nhập thành công! Đang chuyển trang...",
+                "success"
+            );
 
-            showAuthMessage("Đăng nhập thành công!", "success");
-
-            // Chuyển về trang chủ
-            window.location.href = "/";
+            redirectAfterLogin();
 
         } catch (error) {
-            showAuthMessage(error.message, "error");
+            showAuthMessage(getErrorMessage(error), "error");
         } finally {
-            button.disabled = false;
-            button.textContent = "Đăng nhập";
+            setButtonLoading(button, false, "Đang đăng nhập...", "Đăng nhập");
         }
     });
 }
 
 // Xử lý đăng ký
-const registerForm = document.getElementById("registerForm");
-
 if (registerForm) {
+
+    keepNextPath(document.getElementById("loginLink"));
+
     registerForm.addEventListener("submit", async function (event) {
         event.preventDefault();
 
@@ -76,9 +161,14 @@ if (registerForm) {
         const phone = document.getElementById("phone").value.trim();
         const password = document.getElementById("password").value;
 
-        const button = registerForm.querySelector("button");
-        button.disabled = true;
-        button.textContent = "Đang đăng ký...";
+        if (!fullName || !email || !password) {
+            showAuthMessage("Vui lòng nhập họ tên, email và mật khẩu.", "error");
+            return;
+        }
+
+        const button = registerForm.querySelector("button[type='submit']");
+
+        setButtonLoading(button, true, "Đang đăng ký...", "Đăng ký");
 
         try {
             const response = await fetch("/api/auth/register", {
@@ -94,7 +184,7 @@ if (registerForm) {
                 })
             });
 
-            const data = await response.json();
+            const data = await readResponseBody(response);
 
             if (!response.ok) {
                 throw new Error(data.message || "Đăng ký thất bại!");
@@ -107,15 +197,23 @@ if (registerForm) {
 
             registerForm.reset();
 
+            // Quay lại trang đăng nhập kèm thông báo và trang cần quay lại
+            const next = getSafeNextPath();
+
+            let loginUrl = "/login?registered=1";
+
+            if (next) {
+                loginUrl += "&next=" + encodeURIComponent(next);
+            }
+
             setTimeout(function () {
-                window.location.href = "/login";
-            }, 1500);
+                window.location.replace(loginUrl);
+            }, 1200);
 
         } catch (error) {
-            showAuthMessage(error.message, "error");
+            showAuthMessage(getErrorMessage(error), "error");
         } finally {
-            button.disabled = false;
-            button.textContent = "Đăng ký";
+            setButtonLoading(button, false, "Đang đăng ký...", "Đăng ký");
         }
     });
 }
