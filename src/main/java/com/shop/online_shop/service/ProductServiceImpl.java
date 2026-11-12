@@ -3,6 +3,7 @@ package com.shop.online_shop.service;
 
 import com.shop.online_shop.entity.Product;
 import com.shop.online_shop.repository.ProductRepository;
+import com.shop.online_shop.repository.ProductCatalogProcedureRepository;
 
 import org.springframework.stereotype.Service;
 import org.springframework.data.domain.PageRequest;
@@ -15,9 +16,13 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
 
     private final ProductRepository productRepository;
+    private final ProductCatalogProcedureRepository productCatalogProcedureRepository;
 
-    public ProductServiceImpl(ProductRepository productRepository) {
+    public ProductServiceImpl(
+            ProductRepository productRepository,
+            ProductCatalogProcedureRepository productCatalogProcedureRepository) {
         this.productRepository = productRepository;
+        this.productCatalogProcedureRepository = productCatalogProcedureRepository;
     }
 
     @Override
@@ -124,7 +129,7 @@ public class ProductServiceImpl implements ProductService {
         validatePriceRange(minPrice, maxPrice);
         keyword = normalizeKeyword(keyword);
 
-        return productRepository.searchAndFilterActive(
+        return productCatalogProcedureRepository.searchActiveProducts(
                 keyword,
                 categoryId,
                 minPrice,
