@@ -1,154 +1,123 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin - Quản lý danh mục</title>
 
-    <link rel="stylesheet" th:href="@{/css/admin.css}">
-</head>
+    <link rel="stylesheet" th:href="@{/css/admin.css}" />
+  </head>
 
-<body>
-
+  <body>
     <div class="admin-container">
+      <aside class="sidebar">
+        <h2>Online Shop</h2>
+        <a href="/" class="back-home-btn"> ← Về trang chủ </a>
+        <nav>
+          <a href="/admin/products">Quản lý sản phẩm</a>
+          <a href="/admin/categories" class="active">Quản lý danh mục</a>
+          <a href="/admin/orders">Quản lý đơn hàng</a>
+          <a href="/admin/users">Quản lý người dùng</a>
+        </nav>
+      </aside>
 
-        <aside class="sidebar">
-            <h2>Online Shop</h2>
+      <main class="main-content">
+        <header class="topbar">
+          <h1>Quản lý danh mục</h1>
 
-            <nav>
-                <a href="/admin/products">Quản lý sản phẩm</a>
-                <a href="/admin/categories" class="active">Quản lý danh mục</a>
-                <a href="/admin/orders">Quản lý đơn hàng</a>
-                <a href="/admin/users">Quản lý người dùng</a>
-            </nav>
-        </aside>
+          <div class="topbar-actions">
+            <div class="notification-wrapper">
+              <button
+                type="button"
+                id="notificationBell"
+                class="notification-bell"
+                title="Thông báo"
+              >
+                🔔
 
-        <main class="main-content">
+                <span id="notificationBadge" class="notification-badge" hidden>
+                  0
+                </span>
+              </button>
 
-            <header class="topbar">
-                <h1>Quản lý danh mục</h1>
+              <div id="notificationPanel" class="notification-panel" hidden>
+                <div class="notification-header">
+                  <h3>Thông báo</h3>
 
-                <div class="topbar-actions">
-                    <div class="notification-wrapper">
-
-                        <button type="button"
-                                id="notificationBell"
-                                class="notification-bell"
-                                title="Thông báo">
-                            🔔
-
-                            <span id="notificationBadge"
-                                class="notification-badge"
-                                hidden>
-                                0
-                            </span>
-                        </button>
-
-                        <div id="notificationPanel"
-                            class="notification-panel"
-                            hidden>
-
-                            <div class="notification-header">
-                                <h3>Thông báo</h3>
-
-                                <button type="button" id="markAllReadBtn">
-                                    Đánh dấu tất cả đã đọc
-                                </button>
-                            </div>
-
-                            <div id="notificationList"></div>
-                        </div>
-
-                    </div>
-
-                    <span class="admin-label">Admin</span>
-                </div>
-            </header>
-
-            <section class="content">
-
-                <div class="toolbar">
-                    <input
-                        type="text"
-                        id="searchCategoryInput"
-                        placeholder="Tìm kiếm danh mục..."
-                    >
-
-                    <button id="addCategoryBtn">
-                        + Thêm danh mục
-                    </button>
+                  <button type="button" id="markAllReadBtn">
+                    Đánh dấu tất cả đã đọc
+                  </button>
                 </div>
 
-                <div class="table-container">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>Tên danh mục</th>
-                                <th>Thao tác</th>
-                            </tr>
-                        </thead>
-
-                        <tbody id="categoryTableBody">
-                        </tbody>
-                    </table>
-                </div>
-
-            </section>
-
-        </main>
-
-        <!-- Modal thêm / sửa danh mục -->
-        <div id="categoryModal" class="modal hidden">
-
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h2 id="categoryModalTitle">Thêm danh mục</h2>
-
-                    <button type="button" id="closeCategoryModalBtn">
-                        &times;
-                    </button>
-                </div>
-
-                <form id="categoryForm">
-
-                    <div class="form-group">
-                        <label for="categoryName">Tên danh mục</label>
-
-                        <input
-                            type="text"
-                            id="categoryName"
-                            placeholder="Nhập tên danh mục"
-                            required
-                        >
-                    </div>
-
-                    <div class="modal-actions">
-
-                        <button type="button" id="cancelCategoryBtn">
-                            Hủy
-                        </button>
-
-                        <button type="submit" id="saveCategoryBtn">
-                            Lưu danh mục
-                        </button>
-
-                    </div>
-
-                </form>
-
+                <div id="notificationList"></div>
+              </div>
             </div>
 
-        </div>
+            <span class="admin-label">Admin</span>
+          </div>
+        </header>
 
+        <section class="content">
+          <div class="toolbar">
+            <input
+              type="text"
+              id="searchCategoryInput"
+              placeholder="Tìm kiếm danh mục..."
+            />
+
+            <button id="addCategoryBtn">+ Thêm danh mục</button>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Tên danh mục</th>
+                  <th>Thao tác</th>
+                </tr>
+              </thead>
+
+              <tbody id="categoryTableBody"></tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+
+      <!-- Modal thêm / sửa danh mục -->
+      <div id="categoryModal" class="modal hidden">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2 id="categoryModalTitle">Thêm danh mục</h2>
+
+            <button type="button" id="closeCategoryModalBtn">&times;</button>
+          </div>
+
+          <form id="categoryForm">
+            <div class="form-group">
+              <label for="categoryName">Tên danh mục</label>
+
+              <input
+                type="text"
+                id="categoryName"
+                placeholder="Nhập tên danh mục"
+                required
+              />
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" id="cancelCategoryBtn">Hủy</button>
+
+              <button type="submit" id="saveCategoryBtn">Lưu danh mục</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     <script th:src="@{/js/category.js}"></script>
 
     <script th:src="@{/js/admin-notification.js}"></script>
-
-</body>
+  </body>
 </html>
 ```

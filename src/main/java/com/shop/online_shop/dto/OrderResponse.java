@@ -8,6 +8,7 @@ public class OrderResponse {
 
     private Long orderId;
     private Long userId;
+    private String userName;
     private LocalDateTime orderDate;
     private BigDecimal totalAmount;
     private String status;
@@ -17,6 +18,7 @@ public class OrderResponse {
     public OrderResponse(
             Long orderId,
             Long userId,
+            String userName,
             LocalDateTime orderDate,
             BigDecimal totalAmount,
             String status,
@@ -25,6 +27,7 @@ public class OrderResponse {
 
         this.orderId = orderId;
         this.userId = userId;
+        this.userName = userName;
         this.orderDate = orderDate;
         this.totalAmount = totalAmount;
         this.status = status;
@@ -39,6 +42,10 @@ public class OrderResponse {
     public Long getUserId() {
         return userId;
     }
+
+    public String getUserName() {
+    return userName;
+}
 
     public LocalDateTime getOrderDate() {
         return orderDate;

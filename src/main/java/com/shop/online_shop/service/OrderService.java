@@ -157,6 +157,7 @@ public class OrderService {
                 return new OrderResponse(
                                 savedOrder.getId(),
                                 user.getId(),
+                                user.getFullName(),
                                 savedOrder.getOrderDate(),
                                 totalAmount,
                                 savedOrder.getStatus(),
@@ -192,6 +193,7 @@ public class OrderService {
                         responses.add(new OrderResponse(
                                         order.getId(),
                                         userId,
+                                        order.getUser().getFullName(),
                                         order.getOrderDate(),
                                         order.getTotalAmount(),
                                         order.getStatus(),
@@ -395,6 +397,7 @@ public class OrderService {
                 return new OrderResponse(
                                 order.getId(),
                                 order.getUser().getId(),
+                                order.getUser().getFullName(),
                                 order.getOrderDate(),
                                 order.getTotalAmount(),
                                 order.getStatus(),
