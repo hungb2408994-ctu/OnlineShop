@@ -4,6 +4,9 @@ import com.shop.online_shop.dto.NotificationResponse;
 import com.shop.online_shop.entity.Notification;
 import com.shop.online_shop.repository.NotificationRepository;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -33,8 +36,7 @@ public class NotificationService {
                         notification.getTitle(),
                         notification.getMessage(),
                         notification.isRead(),
-                        notification.getCreatedAt()
-                ))
+                        notification.getCreatedAt()))
                 .toList();
     }
 
@@ -48,9 +50,9 @@ public class NotificationService {
 
         Notification notification = notificationRepository
                 .findByIdAndUser_Id(notificationId, userId)
-                .orElseThrow(() -> new RuntimeException(
-                        "Notification not found!"
-                ));
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Notification not found!"));
 
         notification.setRead(true);
         notificationRepository.save(notification);
@@ -59,13 +61,24 @@ public class NotificationService {
     @Transactional
     public void markAllAsRead(Long userId) {
 
-        List<Notification> notifications =
-                notificationRepository.findByUser_IdOrderByCreatedAtDesc(userId);
+        List<Notification> notifications = notificationRepository.findByUser_IdOrderByCreatedAtDesc(userId);
 
         for (Notification notification : notifications) {
             notification.setRead(true);
         }
 
         notificationRepository.saveAll(notifications);
+    }
+
+    @Transactional
+    public void deleteNotification(Long notificationId, Long userId) {
+
+        Notification notification = notificationRepository
+                .findByIdAndUser_Id(notificationId, userId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Notification not found!"));
+
+        notificationRepository.delete(notification);
     }
 }

@@ -1,296 +1,266 @@
-
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Online Shop</title>
-    <link rel="stylesheet" th:href="@{/css/user/home.css}">
-</head>
+    <link rel="stylesheet" th:href="@{/css/user/home.css}" />
+    <link rel="stylesheet" th:href="@{/css/user/profile.css}" />
+  </head>
 
-<body>
-
-<!-- HEADER -->
-<header class="site-header">
-    <div class="container navbar">
-
+  <body>
+    <!-- HEADER -->
+    <header class="site-header">
+      <div class="container navbar">
         <a href="/" class="logo">
-            <span class="logo-icon">✣</span>
-            <span>ONLINE SHOP</span>
+          <span class="logo-icon">✣</span>
+          <span>ONLINE SHOP</span>
         </a>
 
         <nav class="nav-menu">
-            <a href="/" class="active">Trang chủ</a>
-            <a href="/products">Sản phẩm</a>
-            <a href="#categories">Danh mục</a>
-            <a href="#contact">Liên hệ</a>
+          <a href="/" class="active">Trang chủ</a>
+          <a href="/products">Sản phẩm</a>
+          <a href="#categories">Danh mục</a>
+          <a href="#contact">Liên hệ</a>
         </nav>
 
         <div class="nav-actions">
+          <a href="/login" class="account-link" id="accountLink">
+            <span class="account-icon"></span>
+            <span class="account-info">
+              Đăng nhập
+              <small>Đăng ký</small>
+            </span>
+          </a>
 
-            <!-- ICON THÔNG BÁO DẠNG PHONG BÌ -->
-            <a href="#" class="notification-link" aria-label="Thông báo">
-                <svg viewBox="0 0 24 24" fill="none"
-                     stroke="currentColor" stroke-width="1.8"
-                     stroke-linecap="round" stroke-linejoin="round">
-                    <rect x="3" y="5" width="18" height="14" rx="2"></rect>
-                    <path d="m3 7 9 6 9-6"></path>
-                </svg>
-            </a>
+          <!-- ICON THÔNG BÁO -->
+          <a
+            href="/notifications"
+            class="notification-link header-notification"
+            aria-label="Thông báo"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.8"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+              <path d="m3 7 9 6 9-6"></path>
+            </svg>
+          </a>
 
-            <a href="/login" class="account-link" id="accountLink">
-                <span class="account-icon">♙</span>
-                <span class="account-info">
-                    Đăng nhập
-                    <small>Đăng ký</small>
-                </span>
-            </a>
-
-            <a href="/cart" class="cart-link">
-                <span class="cart-icon">🛒</span>
-                <span>
-                    Giỏ hàng của bạn
-                    <small>(0) sản phẩm</small>
-                </span>
-            </a>
-
+          <a href="/cart" class="cart-link header-cart">
+            <span class="cart-icon">🛒</span>
+            <span> Giỏ hàng của bạn </span>
+          </a>
         </div>
-    </div>
-</header>
+      </div>
+    </header>
 
-<!-- MAIN CONTENT -->
-<main class="container home-layout">
-
-    <!-- LEFT CATEGORY SIDEBAR -->
-    <aside class="category-sidebar" id="categories">
-
+    <!-- MAIN CONTENT -->
+    <main class="container home-layout">
+      <!-- LEFT CATEGORY SIDEBAR -->
+      <aside class="category-sidebar" id="categories">
         <div class="sidebar-heading">
-            <h2>Danh mục sản phẩm</h2>
+          <h2>Danh mục sản phẩm</h2>
         </div>
 
         <div class="category-list">
+          <a href="/products" class="sidebar-category">
+            <span class="sidebar-category-icon">▣</span>
+            <span>Tất cả sản phẩm</span>
+          </a>
 
-            <a href="/products" class="sidebar-category">
-                <span class="sidebar-category-icon">▣</span>
-                <span>Tất cả sản phẩm</span>
-            </a>
+          <a
+            th:each="category : ${categories}"
+            th:href="@{/products(categoryId=${category.id})}"
+            class="sidebar-category"
+          >
+            <span class="sidebar-category-icon">▦</span>
 
-            <a th:each="category : ${categories}"
-               th:href="@{/products(categoryId=${category.id})}"
-               class="sidebar-category">
-
-                <span class="sidebar-category-icon">▦</span>
-
-                <span th:text="${category.name}">
-                    Tên danh mục
-                </span>
-
-            </a>
-
+            <span th:text="${category.name}"> Tên danh mục </span>
+          </a>
         </div>
+      </aside>
 
-    </aside>
-
-    <!-- RIGHT CONTENT -->
-    <div class="home-content">
-
+      <!-- RIGHT CONTENT -->
+      <div class="home-content">
         <!-- HERO BANNER -->
         <section class="hero">
+          <!-- HERO TEXT -->
+          <div class="hero-content">
+            <span class="hero-label"> ONLINE SHOP - TECHNOLOGY STORE </span>
 
-            <!-- HERO TEXT -->
-            <div class="hero-content">
+            <h1>
+              Nâng cấp trải nghiệm
+              <span>công nghệ của bạn</span>
+            </h1>
 
-                <span class="hero-label">
-                    ONLINE SHOP - TECHNOLOGY STORE
-                </span>
+            <p>
+              Khám phá smartphone, laptop và các thiết bị công nghệ chính hãng
+              với mức giá hấp dẫn tại Online Shop.
+            </p>
 
-                <h1>
-                    Nâng cấp trải nghiệm
-                    <span>công nghệ của bạn</span>
-                </h1>
+            <div class="hero-actions">
+              <a href="/products" class="hero-button">
+                Mua sắm ngay
+                <span>→</span>
+              </a>
+
+              <a href="#featured-products" class="hero-secondary-button">
+                Khám phá sản phẩm
+              </a>
+            </div>
+
+            <div class="hero-benefits">
+              <span>✓ Sản phẩm đa dạng</span>
+              <span>✓ Giá cả hợp lý</span>
+            </div>
+          </div>
+
+          <!-- PRODUCT SHOWCASE -->
+          <div class="hero-visual" th:if="${not #lists.isEmpty(products)}">
+            <!-- SẢN PHẨM CHÍNH: IPHONE -->
+            <a
+              th:href="@{/products/{id}(id=${product.id})}"
+              class="hero-main-product"
+              th:each="product, productStat : ${heroProducts}"
+              th:if="${productStat.index == 0}"
+            >
+              <span class="hero-product-label"> SẢN PHẨM NỔI BẬT </span>
+
+              <img
+                th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                th:src="${product.imageUrl}"
+                th:alt="${product.name}"
+              />
+
+              <img
+                th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                src="https://placehold.co/300x250/f8fafc/2563eb?text=Product"
+                alt="Product"
+              />
+
+              <div class="hero-main-product-info">
+                <h3 th:text="${product.name}">Tên sản phẩm</h3>
 
                 <p>
-                    Khám phá smartphone, laptop và các thiết bị công nghệ
-                    chính hãng với mức giá hấp dẫn tại Online Shop.
+                  <span
+                    th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"
+                  ></span>
+                  VND
                 </p>
+              </div>
+            </a>
 
-                <div class="hero-actions">
-                    <a href="/products" class="hero-button">
-                        Mua sắm ngay
-                        <span>→</span>
-                    </a>
-
-                    <a href="#featured-products" class="hero-secondary-button">
-                        Khám phá sản phẩm
-                    </a>
-                </div>
-
-                <div class="hero-benefits">
-                    <span>✓ Sản phẩm đa dạng</span>
-                    <span>✓ Giá cả hợp lý</span>
-                </div>
-
-            </div>
-
-            <!-- PRODUCT SHOWCASE -->
-            <div class="hero-visual"
-                th:if="${not #lists.isEmpty(products)}">
-
-                <!-- SẢN PHẨM CHÍNH: IPHONE -->
-                <a th:href="@{/products/{id}(id=${product.id})}"
-                class="hero-main-product"
+            <!-- HAI SẢN PHẨM PHỤ -->
+            <div class="hero-product-stack">
+              <a
                 th:each="product, productStat : ${heroProducts}"
-                th:if="${productStat.index == 0}">
+                th:if="${productStat.index > 0 and productStat.index < 3}"
+                th:href="@{/products/{id}(id=${product.id})}"
+                class="hero-mini-product"
+              >
+                <img
+                  th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                  th:src="${product.imageUrl}"
+                  th:alt="${product.name}"
+                />
 
-                    <span class="hero-product-label">
-                        SẢN PHẨM NỔI BẬT
-                    </span>
+                <img
+                  th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                  src="https://placehold.co/100x100/f8fafc/2563eb?text=Product"
+                  alt="Product"
+                />
 
-                    <img
-                        th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                        th:src="${product.imageUrl}"
-                        th:alt="${product.name}">
+                <div>
+                  <h4 th:text="${product.name}">Tên sản phẩm</h4>
 
-                    <img
-                        th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                        src="https://placehold.co/300x250/f8fafc/2563eb?text=Product"
-                        alt="Product">
-
-                    <div class="hero-main-product-info">
-                        <h3 th:text="${product.name}">Tên sản phẩm</h3>
-
-                        <p>
-                            <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
-                            VND
-                        </p>
-                    </div>
-
-                </a>
-
-                <!-- HAI SẢN PHẨM PHỤ -->
-                <div class="hero-product-stack">
-
-                    <a th:each="product, productStat : ${heroProducts}"
-                        th:if="${productStat.index > 0 and productStat.index < 3}"
-                        th:href="@{/products/{id}(id=${product.id})}"
-                        class="hero-mini-product">
-
-                        <img
-                            th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                            th:src="${product.imageUrl}"
-                            th:alt="${product.name}">
-
-                        <img
-                            th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                            src="https://placehold.co/100x100/f8fafc/2563eb?text=Product"
-                            alt="Product">
-
-                        <div>
-                            <h4 th:text="${product.name}">
-                                Tên sản phẩm
-                            </h4>
-
-                            <span class="hero-mini-link">
-                                Khám phá ngay →
-                            </span>
-                        </div>
-
-                    </a>
-
+                  <span class="hero-mini-link"> Khám phá ngay → </span>
                 </div>
-
+              </a>
             </div>
-
+          </div>
         </section>
-
 
         <!-- FEATURED PRODUCTS -->
         <section class="products-section" id="featured-products">
-
-            <div class="section-heading">
-
-                <div>
-                    <span class="section-label">GỢI Ý DÀNH CHO BẠN</span>
-                    <h2>Sản phẩm nổi bật</h2>
-                    <p>Khám phá các sản phẩm đang được bán tại cửa hàng.</p>
-                </div>
-
-                <a href="/products" class="view-all-link">
-                    Xem tất cả
-                    <span>→</span>
-                </a>
-
+          <div class="section-heading">
+            <div>
+              <span class="section-label">GỢI Ý DÀNH CHO BẠN</span>
+              <h2>Sản phẩm nổi bật</h2>
+              <p>Khám phá các sản phẩm đang được bán tại cửa hàng.</p>
             </div>
 
-            <!-- PRODUCT LIST -->
-            <div class="products" th:if="${not #lists.isEmpty(products)}">
+            <a href="/products" class="view-all-link">
+              Xem tất cả
+              <span>→</span>
+            </a>
+          </div>
 
-                <a class="product-card"
-                    th:each="product : ${products}"
-                    th:href="@{/products/{id}(id=${product.id})}">
+          <!-- PRODUCT LIST -->
+          <div class="products" th:if="${not #lists.isEmpty(products)}">
+            <a
+              class="product-card"
+              th:each="product : ${products}"
+              th:href="@{/products/{id}(id=${product.id})}"
+            >
+              <div class="product-image">
+                <img
+                  th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                  th:src="${product.imageUrl}"
+                  th:alt="${product.name}"
+                />
 
-                    <div class="product-image">
+                <img
+                  th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                  src="https://placehold.co/300x200?text=No+Image"
+                  alt="No image"
+                />
+              </div>
 
-                        <img
-                            th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                            th:src="${product.imageUrl}"
-                            th:alt="${product.name}">
+              <div class="product-info">
+                <h3 th:text="${product.name}">Tên sản phẩm</h3>
 
-                        <img
-                            th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                            src="https://placehold.co/300x200?text=No+Image"
-                            alt="No image">
+                <p class="product-description" th:text="${product.description}">
+                  Mô tả sản phẩm
+                </p>
 
-                    </div>
+                <p class="price">
+                  <span
+                    th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"
+                  ></span>
+                  VND
+                </p>
 
-                    <div class="product-info">
+                <p class="stock">
+                  Còn hàng:
+                  <span th:text="${product.quantity}"></span>
+                </p>
+              </div>
+            </a>
+          </div>
 
-                        <h3 th:text="${product.name}">
-                            Tên sản phẩm
-                        </h3>
-
-                        <p class="product-description"
-                           th:text="${product.description}">
-                            Mô tả sản phẩm
-                        </p>
-
-                        <p class="price">
-                            <span th:text="${#numbers.formatDecimal(product.price, 0, 'COMMA', 0, 'POINT')}"></span>
-                            VND
-                        </p>
-
-                        <p class="stock">
-                            Còn hàng:
-                            <span th:text="${product.quantity}"></span>
-                        </p>
-
-                    </div>
-
-                </a>
-
-            </div>
-
-            <!-- EMPTY PRODUCTS -->
-            <div class="empty" th:if="${#lists.isEmpty(products)}">
-                <h3>Hiện chưa có sản phẩm nào.</h3>
-                <p>Vui lòng quay lại sau nhé!</p>
-            </div>
-
+          <!-- EMPTY PRODUCTS -->
+          <div class="empty" th:if="${#lists.isEmpty(products)}">
+            <h3>Hiện chưa có sản phẩm nào.</h3>
+            <p>Vui lòng quay lại sau nhé!</p>
+          </div>
         </section>
+      </div>
+    </main>
 
-    </div>
-
-</main>
-
-<!-- FOOTER -->
-<footer id="contact" class="site-footer">
-    <div class="container">
+    <!-- FOOTER -->
+    <footer id="contact" class="site-footer">
+      <div class="container">
         <p>© 2026 Online Shop. All rights reserved.</p>
-    </div>
-</footer>
+      </div>
+    </footer>
 
-<script th:src="@{/js/session.js}"></script>
-<script th:src="@{/js/header.js}"></script>
-
-</body>
+    <script th:src="@{/js/session.js}"></script>
+    <script th:src="@{/js/header.js}"></script>
+  </body>
 </html>

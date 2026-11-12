@@ -1,0 +1,97 @@
+
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Thông báo - Online Shop</title>
+
+    <link rel="stylesheet" th:href="@{/css/user/notifications.css}">
+</head>
+
+<body>
+
+    <header class="notification-header">
+        <div class="notification-header-inner">
+
+            <a href="/" class="notification-logo">
+                Online Shop
+            </a>
+
+            <nav class="notification-nav">
+                <a href="/">Trang chủ</a>
+                <a href="/products">Sản phẩm</a>
+                <a href="/my-orders">Đơn hàng của tôi</a>
+
+                <a href="/notifications"
+                   class="header-notification active"
+                   aria-label="Thông báo">
+                    <span class="bell-icon">♧</span>
+                    <span class="notification-badge" hidden>0</span>
+                </a>
+            </nav>
+
+            <div id="headerAccount"></div>
+
+        </div>
+    </header>
+
+    <main class="notifications-container">
+
+        <div class="notifications-heading">
+            <div>
+                <h1>Thông báo</h1>
+                <p>Cập nhật thông tin về đơn hàng của bạn.</p>
+            </div>
+
+            <button id="markAllReadBtn"
+                    class="mark-all-btn"
+                    type="button">
+                Đánh dấu tất cả đã đọc
+            </button>
+        </div>
+
+        <div class="notification-summary">
+            <div>
+                <span>Tổng thông báo</span>
+                <strong id="totalNotifications">0</strong>
+            </div>
+
+            <div>
+                <span>Chưa đọc</span>
+                <strong id="unreadNotifications">0</strong>
+            </div>
+        </div>
+
+        <div class="notification-list-header">
+            <h2>Danh sách thông báo</h2>
+
+            <span id="notificationCount">
+                0 thông báo
+            </span>
+        </div>
+
+        <div id="notificationMessage"
+             class="notification-message"
+             role="status">
+        </div>
+
+        <div id="notificationList"
+             class="notification-list">
+
+            <div class="notification-loading">
+                Đang tải thông báo...
+            </div>
+
+        </div>
+
+    </main>
+
+    <script th:src="@{/js/session.js}"></script>
+    <script th:src="@{/js/header.js}"></script>
+    <script th:src="@{/js/notifications.js}"></script>
+
+</body>
+</html>
