@@ -11,7 +11,8 @@
   <body>
     <div class="admin-container">
       <aside class="sidebar">
-        <h2>ADMIN</h2>
+        <h2>Online Shop</h2>
+        <a href="/" class="back-home-btn"> ← Về trang chủ </a>
         <nav>
           <a href="/admin/products">Quản lý sản phẩm</a>
           <a href="/admin/categories">Quản lý danh mục</a>
@@ -23,7 +24,36 @@
       <main class="main-content">
         <header class="topbar">
           <h1>Quản lý đơn hàng</h1>
-          <span>Admin</span>
+
+          <div class="topbar-actions">
+            <div class="notification-wrapper">
+              <button
+                type="button"
+                id="notificationBell"
+                class="notification-bell"
+                title="Thông báo"
+              >
+                🔔
+                <span id="notificationBadge" class="notification-badge" hidden
+                  >0</span
+                >
+              </button>
+
+              <div id="notificationPanel" class="notification-panel" hidden>
+                <div class="notification-header">
+                  <h3>Thông báo</h3>
+
+                  <button type="button" id="markAllReadBtn">
+                    Đánh dấu tất cả đã đọc
+                  </button>
+                </div>
+
+                <div id="notificationList"></div>
+              </div>
+            </div>
+
+            <span class="admin-label">Admin</span>
+          </div>
         </header>
 
         <section class="content">
@@ -82,6 +112,7 @@
                 <tr>
                   <th>Mã đơn</th>
                   <th>Mã khách hàng</th>
+                  <th>Tên khách hàng</th>
                   <th>Ngày đặt</th>
                   <th>Tổng tiền</th>
                   <th>Trạng thái</th>
@@ -148,5 +179,6 @@
     </div>
 
     <script th:src="@{/js/admin-orders.js}"></script>
+    <script th:src="@{/js/admin-notification.js}"></script>
   </body>
 </html>

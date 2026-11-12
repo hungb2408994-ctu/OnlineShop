@@ -501,3 +501,183 @@ th {
     }
 }
 
+/* ==============================
+   ADMIN NOTIFICATION CENTER
+============================== */
+
+.notification-wrapper {
+    position: relative;
+}
+
+.notification-bell {
+    position: relative;
+    width: 42px;
+    height: 42px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f1f5f9;
+    color: #334155;
+    border: 1px solid #e2e8f0;
+    border-radius: 50%;
+    font-size: 19px;
+}
+
+.notification-bell:hover {
+    background: #e2e8f0;
+    opacity: 1;
+}
+
+.notification-badge {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    min-width: 19px;
+    height: 19px;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #dc2626;
+    color: white;
+    border: 2px solid white;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
+}
+
+.notification-badge[hidden] {
+    display: none;
+}
+
+.notification-panel {
+    position: absolute;
+    top: calc(100% + 12px);
+    right: 0;
+    width: 370px;
+    max-height: 450px;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    z-index: 2000;
+    overflow: hidden;
+}
+
+.notification-panel[hidden] {
+    display: none;
+}
+
+.notification-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 15px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.notification-header h3 {
+    font-size: 17px;
+    color: #1e293b;
+}
+
+#markAllReadBtn {
+    padding: 7px 9px;
+    background: transparent;
+    color: #2563eb;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+#markAllReadBtn:hover {
+    background: #eff6ff;
+    opacity: 1;
+}
+
+#notificationList {
+    max-height: 370px;
+    overflow-y: auto;
+}
+
+.notification-item {
+    padding: 14px 16px;
+    border-bottom: 1px solid #f1f5f9;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.notification-item:hover {
+    background: #f8fafc;
+}
+
+.notification-item.unread {
+    background: #eff6ff;
+    border-left: 3px solid #2563eb;
+}
+
+.notification-item strong {
+    display: block;
+    margin-bottom: 6px;
+    color: #1e293b;
+    font-size: 14px;
+}
+
+.notification-item p {
+    margin-bottom: 7px;
+    color: #475569;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.notification-item small {
+    color: #94a3b8;
+    font-size: 11px;
+}
+
+.notification-empty {
+    padding: 30px 15px;
+    text-align: center;
+    color: #94a3b8;
+    font-size: 14px;
+}
+
+@media (max-width: 480px) {
+    .notification-panel {
+        position: fixed;
+        top: 75px;
+        left: 10px;
+        right: 10px;
+        width: auto;
+        max-height: calc(100vh - 95px);
+    }
+
+    #notificationList {
+        max-height: calc(100vh - 170px);
+    }
+
+    .notification-header {
+        flex-wrap: wrap;
+    }
+}
+/* Nút quay về trang chủ */
+.back-home-btn {
+    display: block;
+    margin: 12px 15px 20px;
+    padding: 10px 12px;
+    color: #cbd5e1;
+    background: #334155;
+    border: 1px solid #475569;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 14px;
+    text-align: center;
+    transition: 0.2s;
+}
+
+.back-home-btn:hover {
+    background: #475569;
+    color: #ffffff;
+}

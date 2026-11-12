@@ -124,7 +124,7 @@ function displayOrders(orders) {
     if (!Array.isArray(orders) || orders.length === 0) {
         const row = document.createElement("tr");
         const cell = createCell("Không có đơn hàng nào.");
-        cell.colSpan = 7;
+        cell.colSpan = 8;
         row.appendChild(cell);
         orderTableBody.appendChild(row);
         return;
@@ -135,6 +135,7 @@ function displayOrders(orders) {
 
         row.appendChild(createCell("#" + order.orderId));
         row.appendChild(createCell(order.userId));
+        row.appendChild(createCell(order.userName));
         row.appendChild(createCell(formatDate(order.orderDate)));
         row.appendChild(createCell(formatCurrency(order.totalAmount)));
         row.appendChild(createCell(getStatusText(order.status)));
@@ -211,7 +212,7 @@ function showOrderError(message) {
 
     const row = document.createElement("tr");
     const cell = createCell(message);
-    cell.colSpan = 7;
+    cell.colSpan = 8;
     cell.className = "error-message";
 
     row.appendChild(cell);
@@ -281,6 +282,7 @@ function displayOrderDetail(order) {
     const details = [
         ["Mã đơn hàng", "#" + order.orderId],
         ["Mã khách hàng", order.userId],
+        ["Tên khách hàng", order.userName],
         ["Ngày đặt", formatDate(order.orderDate)],
         ["Tổng tiền", formatCurrency(order.totalAmount)],
         ["Trạng thái", getStatusText(order.status)],
