@@ -67,13 +67,14 @@
 
         <p class="auth-switch">
             Chưa có tài khoản?
-            <a th:href="@{/register}">Đăng ký ngay</a>
+            <a th:href="@{/register}" id="registerLink">Đăng ký ngay</a>
         </p>
 
         <a href="/" class="back-home">← Quay lại trang chủ</a>
     </div>
 </div>
 
+<script th:src="@{/js/session.js}"></script>
 <script th:src="@{/js/auth.js}"></script>
 </body>
 </html>

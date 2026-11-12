@@ -1,3 +1,4 @@
+
 package com.shop.online_shop.controller;
 
 import com.shop.online_shop.dto.ProductCatalogItem;
@@ -15,8 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -45,39 +46,27 @@ public class ProductsPageController {
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestParam(required = false) String sort,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size,
             Model model) {
 
-        // Lấy danh sách danh mục cho sidebar
         model.addAttribute("categories", categoryRepository.findAll());
 
         List<ProductCatalogItem> products = new ArrayList<>();
         String filterError = null;
 
         try {
-            // Tìm những Product thỏa mãn điều kiện tìm kiếm và lọc
+            // Lấy sản phẩm ACTIVE thỏa mãn điều kiện tìm kiếm và lọc.
             List<Product> result = productService.searchAndFilterActive(
                     keyword,
                     categoryId,
                     minPrice,
                     maxPrice
             );
-System.out.println("========== PRODUCT GROUP DEBUG ==========");
 
-for (Product p : result) {
-    System.out.println(
-            "Product ID: " + p.getId()
-            + " | Name: " + p.getName()
-            + " | Model ID: "
-            + (p.getProductModel() != null
-                ? p.getProductModel().getId()
-                : "NULL")
-    );
-}
-
-System.out.println("==========================================");
             if (result != null && !result.isEmpty()) {
 
-                // Lấy toàn bộ ProductModel cùng các biến thể
+                // Lấy các nhóm sản phẩm và biến thể.
                 List<ProductModel> allModels =
                         productModelRepository.findAll();
 
@@ -87,10 +76,9 @@ System.out.println("==========================================");
                     modelMap.put(productModel.getId(), productModel);
                 }
 
-                // Ghi nhận các nhóm có ít nhất một biến thể phù hợp
-                Set<Long> matchedModelIds = new HashSet<>();
+                // Ghi nhận các nhóm có ít nhất một sản phẩm phù hợp.
+                Set<Long> matchedModelIds = new LinkedHashSet<>();
 
-                // Sản phẩm chưa thuộc nhóm
                 for (Product product : result) {
 
                     if (product.getProductModel() != null) {
@@ -101,12 +89,12 @@ System.out.println("==========================================");
                         matchedModelIds.add(productModelId);
 
                     } else {
-
+                        // Sản phẩm độc lập.
                         products.add(new ProductCatalogItem(product));
                     }
                 }
 
-                // Mỗi nhóm chỉ tạo một thẻ sản phẩm
+                // Mỗi nhóm chỉ hiển thị một thẻ sản phẩm.
                 for (Long productModelId : matchedModelIds) {
 
                     ProductModel productModel =
@@ -127,20 +115,7 @@ System.out.println("==========================================");
             filterError = e.getMessage();
         }
 
-        // Sắp xếp danh sách sản phẩm
-        System.out.println("========== FINAL CATALOG DEBUG ==========");
-
-for (ProductCatalogItem item : products) {
-    System.out.println(
-            "ID: " + item.getId()
-            + " | Name: " + item.getName()
-            + " | Grouped: " + item.isGrouped()
-            + " | Variant count: " + item.getVariantCount()
-    );
-}
-
-System.out.println("Total catalog cards: " + products.size());
-System.out.println("=========================================");
+        // Sắp xếp danh sách sản phẩm.
         if ("price-asc".equals(sort)) {
 
             products.sort(
@@ -169,11 +144,9 @@ System.out.println("=========================================");
             );
         }
 
-        // Truyền dữ liệu sang Thymeleaf
-        model.addAttribute("products", products);
+        // Thông tin tìm kiếm và lọc.
         model.addAttribute("filterError", filterError);
 
-        // Thông tin danh mục đang chọn
         String selectedCategoryName = null;
 
         if (categoryId != null) {
@@ -184,12 +157,67 @@ System.out.println("=========================================");
 
         model.addAttribute("selectedCategoryId", categoryId);
         model.addAttribute("selectedCategoryName", selectedCategoryName);
-
-        // Giữ lại điều kiện tìm kiếm và sắp xếp
         model.addAttribute("keyword", keyword);
         model.addAttribute("minPrice", minPrice);
         model.addAttribute("maxPrice", maxPrice);
         model.addAttribute("sort", sort);
+
+        // Phân trang.
+        size = Math.max(1, Math.min(size, 60));
+
+        int totalProducts = products.size();
+        int totalPages = (int) Math.ceil((double) totalProducts / size);
+
+        // Đảm bảo page nằm trong phạm vi hợp lệ.
+        if (totalPages > 0) {
+            page = Math.max(0, Math.min(page, totalPages - 1));
+        } else {
+            page = 0;
+        }
+
+        List<Integer> visiblePages = new ArrayList<>();
+
+        if (totalPages <= 5) {
+
+            for (int i = 0; i < totalPages; i++) {
+                visiblePages.add(i);
+            }
+
+        } else {
+
+            for (int i = 0; i < 3; i++) {
+                visiblePages.add(i);
+            }
+
+            int start = Math.max(3, page - 1);
+            int end = Math.min(totalPages - 4, page + 1);
+
+            for (int i = start; i <= end; i++) {
+                visiblePages.add(i);
+            }
+
+            for (int i = totalPages - 3; i < totalPages; i++) {
+                visiblePages.add(i);
+            }
+        }
+
+        model.addAttribute("visiblePages", visiblePages);
+
+        int fromIndex = page * size;
+        int toIndex = Math.min(fromIndex + size, totalProducts);
+
+        // Lưu ý: phải là ProductCatalogItem, không phải Product.
+        List<ProductCatalogItem> pagedProducts = new ArrayList<>(
+                products.subList(fromIndex, toIndex)
+        );
+
+        model.addAttribute("products", pagedProducts);
+        model.addAttribute("totalProducts", totalProducts);
+        model.addAttribute("currentPage", page);
+        model.addAttribute("totalPages", totalPages);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("hasPrevious", page > 0);
+        model.addAttribute("hasNext", page < totalPages - 1);
 
         return "user/products";
     }

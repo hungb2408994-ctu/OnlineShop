@@ -52,6 +52,12 @@ public class JwtService {
         return extractAllClaims(token).getSubject();
     }
 
+    // Thời gian sống của token (mili giây), dùng để đặt Max-Age cho cookie
+    public long getExpirationMillis() {
+
+        return expiration;
+    }
+
     // Kiểm tra Token có hợp lệ không
     public boolean isTokenValid(String token) {
 

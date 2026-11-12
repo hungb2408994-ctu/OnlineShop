@@ -22,7 +22,7 @@ function showError(message) {
 
 async function apiRequest(url) {
 
-    const token = localStorage.getItem("accessToken");
+    const token = getAccessToken();
 
     const response = await fetch(url, {
         headers: {
@@ -35,9 +35,8 @@ async function apiRequest(url) {
     if (!response.ok) {
 
         if (response.status === 401) {
-            localStorage.removeItem("accessToken");
-            localStorage.removeItem("currentUser");
-            window.location.href = "/login";
+            clearSession();
+            redirectToLogin(true);
 
             throw new Error("Phiên đăng nhập đã hết hạn.");
         }
@@ -167,10 +166,10 @@ async function loadOrders() {
 
     try {
 
-        const token = localStorage.getItem("accessToken");
+        const token = getAccessToken();
 
         if (!token) {
-            window.location.href = "/login";
+            redirectToLogin(false);
             return;
         }
 
