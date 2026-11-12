@@ -25,4 +25,14 @@ public class AdminPageController {
     public String showUsersPage() {
         return "admin/users";
     }
+
+    @GetMapping("/my-orders")
+    public String showMyOrdersPage() {
+        return "my-orders";
+    }
+
+    @GetMapping("/notifications")
+    public String showNotificationsPage() {
+        return "notifications";
+    }
 }

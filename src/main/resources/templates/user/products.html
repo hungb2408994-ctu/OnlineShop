@@ -1,358 +1,357 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="vi" xmlns:th="http://www.thymeleaf.org">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
     <title>Sản phẩm - Online Shop</title>
 
-    <link rel="stylesheet" th:href="@{/css/user/products.css}">
-</head>
+    <link rel="stylesheet" th:href="@{/css/user/products.css}" />
+    <link rel="stylesheet" th:href="@{/css/user/profile.css}" />
+  </head>
 
-<body>
-
-<!-- HEADER -->
-<header class="site-header">
-
-    <div class="container header-main">
-
+  <body>
+    <!-- HEADER -->
+    <header class="site-header">
+      <div class="container header-main">
         <a href="/" class="logo">
-            <span class="logo-icon">✣</span>
+          <span class="logo-icon">✣</span>
         </a>
 
         <a href="/products" class="category-button">
-            <span>☰</span>
-            Danh mục sản phẩm
+          <span>☰</span>
+          Danh mục sản phẩm
         </a>
 
         <div class="header-search-wrapper">
+          <form class="header-search" method="get" th:action="@{/products}">
+            <input
+              type="text"
+              name="keyword"
+              placeholder="Bạn muốn mua gì hôm nay..."
+              th:value="${keyword}"
+            />
+            <button type="submit">⌕</button>
+          </form>
 
-            <form class="header-search" method="get" th:action="@{/products}">
-                <input
-                    type="text"
-                    name="keyword"
-                    placeholder="Bạn muốn mua gì hôm nay..."
-                    th:value="${keyword}"
-                >
-                <button type="submit">⌕</button>
-            </form>
-
-            <div class="search-suggestions">
-                <a href="/products?keyword=iPhone">iPhone</a>
-                <a href="/products?keyword=Samsung">Samsung</a>
-                <a href="/products?keyword=MacBook">MacBook</a>
-                <a href="/products?keyword=Laptop">Laptop</a>
-                <a href="/products?keyword=Màn hình">Màn hình</a>
-            </div>
-
+          <div class="search-suggestions">
+            <a href="/products?keyword=iPhone">iPhone</a>
+            <a href="/products?keyword=Samsung">Samsung</a>
+            <a href="/products?keyword=MacBook">MacBook</a>
+            <a href="/products?keyword=Laptop">Laptop</a>
+            <a href="/products?keyword=Màn hình">Màn hình</a>
+          </div>
         </div>
 
         <div class="header-account" id="headerAccount">
-            <span class="header-icon">♙</span>
-            <div>
-                <a href="/login">Đăng nhập</a>
-                <a href="/register">Đăng ký</a>
-            </div>
+          <div>
+            <a href="/login">Đăng nhập</a>
+            <a href="/register">Đăng ký</a>
+          </div>
         </div>
 
-        <a href="/notifications" class="header-notification"
-           aria-label="Thông báo">♧</a>
-
-        <a href="/cart" class="header-cart">
-            <span class="header-icon">🛒</span>
-            <div>
-                <strong>Giỏ hàng của bạn</strong>
-                <span>(0) sản phẩm</span>
-            </div>
+        <a
+          href="/notifications"
+          class="notification-link header-notification"
+          aria-label="Thông báo"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.8"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+          >
+            <rect x="3" y="5" width="18" height="14" rx="2"></rect>
+            <path d="m3 7 9 6 9-6"></path>
+          </svg>
         </a>
 
-    </div>
+        <a href="/cart" class="cart-link header-cart">
+          <span class="cart-icon">🛒</span>
+          <span>Giỏ hàng của bạn</span>
+        </a>
+      </div>
+    </header>
 
-</header>
-
-<!-- BREADCRUMB -->
-<div class="breadcrumb-wrapper">
-    <div class="container breadcrumb">
-
+    <!-- BREADCRUMB -->
+    <div class="breadcrumb-wrapper">
+      <div class="container breadcrumb">
         <a href="/">⌂ Trang chủ</a>
 
         <span class="breadcrumb-separator">›</span>
 
-        <a href="/products"
-           th:if="${selectedCategoryId != null}">
-            Sản phẩm
-        </a>
+        <a href="/products" th:if="${selectedCategoryId != null}"> Sản phẩm </a>
 
-        <span class="breadcrumb-separator"
-              th:if="${selectedCategoryId != null}">›</span>
+        <span class="breadcrumb-separator" th:if="${selectedCategoryId != null}"
+          >›</span
+        >
 
-        <span th:if="${selectedCategoryId == null}">
-            Tất cả sản phẩm
+        <span th:if="${selectedCategoryId == null}"> Tất cả sản phẩm </span>
+
+        <span
+          th:if="${selectedCategoryId != null}"
+          th:text="${selectedCategoryName}"
+        >
+          Danh mục
         </span>
-
-        <span th:if="${selectedCategoryId != null}"
-              th:text="${selectedCategoryName}">
-            Danh mục
-        </span>
-
+      </div>
     </div>
-</div>
 
-<!-- MAIN -->
-<main class="container shop-layout">
-
-    <!-- SIDEBAR -->
-    <aside class="sidebar">
-
+    <!-- MAIN -->
+    <main class="container shop-layout">
+      <!-- SIDEBAR -->
+      <aside class="sidebar">
         <h2>Danh mục sản phẩm</h2>
 
         <div class="category-scroll">
-
-            <a href="/products"
+          <a
+            href="/products"
             class="category-link"
-            th:classappend="${selectedCategoryId == null} ? ' active' : ''">
-                Tất cả sản phẩm
-            </a>
+            th:classappend="${selectedCategoryId == null} ? ' active' : ''"
+          >
+            Tất cả sản phẩm
+          </a>
 
-            <a th:each="category : ${categories}"
+          <a
+            th:each="category : ${categories}"
             th:href="@{/products(categoryId=${category.id})}"
             class="category-link"
             th:classappend="${selectedCategoryId != null and selectedCategoryId == category.id} ? ' active' : ''"
-            th:text="${category.name}">
-                Tên danh mục
-            </a>
-
+            th:text="${category.name}"
+          >
+            Tên danh mục
+          </a>
         </div>
+      </aside>
 
-    </aside>
-
-    <!-- PRODUCT CONTENT -->
-    <section class="product-content">
-
+      <!-- PRODUCT CONTENT -->
+      <section class="product-content">
         <!-- CATEGORY HEADING -->
         <div class="category-heading">
+          <div class="category-title">
+            <h1
+              th:text="${selectedCategoryName != null
+                    ? selectedCategoryName : 'Tất cả sản phẩm'}"
+            >
+              Tất cả sản phẩm
+            </h1>
 
-            <div class="category-title">
+            <span class="product-count">
+              (<span th:text="${totalProducts}">0</span>
+              sản phẩm)
+            </span>
+          </div>
 
-                <h1 th:text="${selectedCategoryName != null
-                    ? selectedCategoryName : 'Tất cả sản phẩm'}">
-                    Tất cả sản phẩm
-                </h1>
-
-                <span class="product-count">
-                    (<span th:text="${totalProducts}">0</span>
-                    sản phẩm)
-                </span>
-            </div>
-
-            <p>Khám phá và lựa chọn sản phẩm phù hợp với bạn.</p>
-
+          <p>Khám phá và lựa chọn sản phẩm phù hợp với bạn.</p>
         </div>
 
         <!-- SORT BAR -->
         <div class="sort-section">
+          <span class="sort-label">Sắp xếp theo</span>
 
-            <span class="sort-label">Sắp xếp theo</span>
-
-            <div class="sort-options">
-
-                <a th:href="@{/products(
+          <div class="sort-options">
+            <a
+              th:href="@{/products(
                     categoryId=${selectedCategoryId},
                     keyword=${keyword},
                     minPrice=${minPrice},
                     maxPrice=${maxPrice}
                 )}"
-                   class="sort-option"
-                   th:classappend="${sort == null} ? ' active' : ''">
-                    Mặc định
-                </a>
+              class="sort-option"
+              th:classappend="${sort == null} ? ' active' : ''"
+            >
+              Mặc định
+            </a>
 
-                <a th:href="@{/products(
+            <a
+              th:href="@{/products(
                     sort='newest',
                     keyword=${keyword},
                     categoryId=${selectedCategoryId},
                     minPrice=${minPrice},
                     maxPrice=${maxPrice}
                 )}"
-                    class="sort-option"
-                    th:classappend="${sort == 'newest'} ? ' active' : ''">
-                    Mới nhất
-                </a>
+              class="sort-option"
+              th:classappend="${sort == 'newest'} ? ' active' : ''"
+            >
+              Mới nhất
+            </a>
 
-                <a th:href="@{/products(
+            <a
+              th:href="@{/products(
                     categoryId=${selectedCategoryId},
                     keyword=${keyword},
                     minPrice=${minPrice},
                     maxPrice=${maxPrice},
                     sort='price-asc'
                 )}"
-                   class="sort-option"
-                   th:classappend="${sort == 'price-asc'} ? ' active' : ''">
-                    Giá tăng dần
-                </a>
+              class="sort-option"
+              th:classappend="${sort == 'price-asc'} ? ' active' : ''"
+            >
+              Giá tăng dần
+            </a>
 
-                <a th:href="@{/products(
+            <a
+              th:href="@{/products(
                     categoryId=${selectedCategoryId},
                     keyword=${keyword},
                     minPrice=${minPrice},
                     maxPrice=${maxPrice},
                     sort='price-desc'
                 )}"
-                   class="sort-option"
-                   th:classappend="${sort == 'price-desc'} ? ' active' : ''">
-                    Giá giảm dần
-                </a>
+              class="sort-option"
+              th:classappend="${sort == 'price-desc'} ? ' active' : ''"
+            >
+              Giá giảm dần
+            </a>
 
-                <a th:href="@{/products(
+            <a
+              th:href="@{/products(
                     categoryId=${selectedCategoryId},
                     keyword=${keyword},
                     minPrice=${minPrice},
                     maxPrice=${maxPrice},
                     sort='best-selling'
                 )}"
-                class="sort-option"
-                th:classappend="${sort == 'best-selling'} ? ' active' : ''">
-                    Bán chạy nhất
-                </a>
-            </div>
-
+              class="sort-option"
+              th:classappend="${sort == 'best-selling'} ? ' active' : ''"
+            >
+              Bán chạy nhất
+            </a>
+          </div>
         </div>
 
         <!-- SEARCH AND FILTER -->
-        <form class="filter-form"
-              method="get"
-              th:action="@{/products}">
+        <form class="filter-form" method="get" th:action="@{/products}">
+          <input
+            type="hidden"
+            name="sort"
+            th:value="${sort}"
+            th:if="${sort != null}"
+          />
 
-            <input
-                type="hidden"
-                name="sort"
-                th:value="${sort}"
-                th:if="${sort != null}"
-            >
+          <input
+            type="hidden"
+            name="categoryId"
+            th:value="${selectedCategoryId}"
+            th:if="${selectedCategoryId != null}"
+          />
 
-            <input
-                type="hidden"
-                name="categoryId"
-                th:value="${selectedCategoryId}"
-                th:if="${selectedCategoryId != null}"
-            >
+          <input
+            type="text"
+            name="keyword"
+            placeholder="Tìm kiếm sản phẩm..."
+            th:value="${keyword}"
+          />
 
-            <input
-                type="text"
-                name="keyword"
-                placeholder="Tìm kiếm sản phẩm..."
-                th:value="${keyword}"
-            >
+          <input
+            type="number"
+            name="minPrice"
+            min="0"
+            placeholder="Giá từ"
+            th:value="${minPrice}"
+          />
 
-            <input
-                type="number"
-                name="minPrice"
-                min="0"
-                placeholder="Giá từ"
-                th:value="${minPrice}"
-            >
+          <input
+            type="number"
+            name="maxPrice"
+            min="0"
+            placeholder="Giá đến"
+            th:value="${maxPrice}"
+          />
 
-            <input
-                type="number"
-                name="maxPrice"
-                min="0"
-                placeholder="Giá đến"
-                th:value="${maxPrice}"
-            >
+          <button type="submit">Tìm kiếm</button>
 
-            <button type="submit">Tìm kiếm</button>
-
-            <a href="/products">Xóa bộ lọc</a>
-
+          <a href="/products">Xóa bộ lọc</a>
         </form>
 
-        <div class="filter-error"
-            th:if="${filterError != null}"
-            th:text="${filterError}">
-            Thông tin lọc không hợp lệ.
+        <div
+          class="filter-error"
+          th:if="${filterError != null}"
+          th:text="${filterError}"
+        >
+          Thông tin lọc không hợp lệ.
         </div>
 
         <!-- PRODUCT GRID -->
-        <div class="products"
-             th:if="${not #lists.isEmpty(products)}">
-
-            <article class="product-card"
-                     th:each="product : ${products}">
-
-                <a class="product-image"
-                    th:href="@{/products/{id}(id=${product.id})}">
-
-                        <!-- TAG SẢN PHẨM MỚI -->
-                        <span class="new-badge"
-                            th:if="${product.createdAt != null
+        <div class="products" th:if="${not #lists.isEmpty(products)}">
+          <article class="product-card" th:each="product : ${products}">
+            <a
+              class="product-image"
+              th:href="@{/products/{id}(id=${product.id})}"
+            >
+              <!-- TAG SẢN PHẨM MỚI -->
+              <span
+                class="new-badge"
+                th:if="${product.createdAt != null
                             and product.createdAt.isAfter(
                                 T(java.time.LocalDateTime).now().minusDays(7)
-                            )}">
-                            MỚI
-                        </span>
+                            )}"
+              >
+                MỚI
+              </span>
 
-                        <img
-                            th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                            th:src="${product.imageUrl}"
-                            th:alt="${product.name}"
-                        >
+              <img
+                th:if="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                th:src="${product.imageUrl}"
+                th:alt="${product.name}"
+              />
 
-                        <img
-                            th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
-                            src="https://placehold.co/300x220/e0ecff/2563eb?text=No+Image"
-                            alt="No image"
-                        >
+              <img
+                th:unless="${product.imageUrl != null and !product.imageUrl.isEmpty()}"
+                src="https://placehold.co/300x220/e0ecff/2563eb?text=No+Image"
+                alt="No image"
+              />
+            </a>
+
+            <div class="product-info">
+              <h3>
+                <a
+                  th:href="@{/products/{id}(id=${product.id})}"
+                  th:text="${product.name}"
+                >
+                  Tên sản phẩm
                 </a>
+              </h3>
 
-                <div class="product-info">
+              <p class="description" th:text="${product.description}">
+                Mô tả sản phẩm
+              </p>
 
-                    <h3>
-                        <a th:href="@{/products/{id}(id=${product.id})}"
-                        th:text="${product.name}">
-                            Tên sản phẩm
-                        </a>
-                    </h3>
+              <!-- HIỂN THỊ SỐ PHIÊN BẢN -->
+              <p class="variant-badge" th:if="${product.grouped}">
+                <span th:text="${product.variantCount}"></span>
+                phiên bản
+              </p>
 
-                    <p class="description"
-                    th:text="${product.description}">
-                        Mô tả sản phẩm
-                    </p>
-
-                    <!-- HIỂN THỊ SỐ PHIÊN BẢN -->
-                    <p class="variant-badge"
-                    th:if="${product.grouped}">
-                        <span th:text="${product.variantCount}"></span>
-                        phiên bản
-                    </p>
-
-                    <!-- GIÁ SẢN PHẨM -->
-                    <p class="price">
-                        <span th:if="${product.grouped}">Từ </span>
-                        <span th:text="${#numbers.formatDecimal(
+              <!-- GIÁ SẢN PHẨM -->
+              <p class="price">
+                <span th:if="${product.grouped}">Từ </span>
+                <span
+                  th:text="${#numbers.formatDecimal(
                             product.price, 0, 'COMMA', 0, 'POINT'
-                        )}"></span> ₫
-                    </p>
+                        )}"
+                ></span>
+                ₫
+              </p>
 
-                    <!-- TỒN KHO -->
-                    <p class="stock">
-                        <span th:if="${product.grouped}">Tổng tồn kho: </span>
-                        <span th:unless="${product.grouped}">Còn hàng: </span>
-                        <span th:text="${product.quantity}"></span>
-                    </p>
-
-                </div>
-
-            </article>
-
+              <!-- TỒN KHO -->
+              <p class="stock">
+                <span th:if="${product.grouped}">Tổng tồn kho: </span>
+                <span th:unless="${product.grouped}">Còn hàng: </span>
+                <span th:text="${product.quantity}"></span>
+              </p>
+            </div>
+          </article>
         </div>
 
         <!-- Pagination -->
-        <div class="pagination"
-            th:if="${totalPages > 1}">
-
-            <!-- First page -->
-            <a th:href="@{/products(
+        <div class="pagination" th:if="${totalPages > 1}">
+          <!-- First page -->
+          <a
+            th:href="@{/products(
                 page=0,
                 size=${pageSize},
                 keyword=${keyword},
@@ -362,12 +361,14 @@
                 sort=${sort}
             )}"
             class="pagination-btn"
-            th:classappend="${currentPage == 0} ? ' disabled' : ''">
-                &laquo; Đầu
-            </a>
+            th:classappend="${currentPage == 0} ? ' disabled' : ''"
+          >
+            &laquo; Đầu
+          </a>
 
-            <!-- Previous page -->
-            <a th:if="${hasPrevious}"
+          <!-- Previous page -->
+          <a
+            th:if="${hasPrevious}"
             th:href="@{/products(
                 page=${currentPage - 1},
                 size=${pageSize},
@@ -377,22 +378,25 @@
                 maxPrice=${maxPrice},
                 sort=${sort}
             )}"
-            class="pagination-btn">
-                &lsaquo;
-            </a>
+            class="pagination-btn"
+          >
+            &lsaquo;
+          </a>
 
-            <!-- Page numbers -->
-            <th:block th:each="i, stat : ${visiblePages}">
+          <!-- Page numbers -->
+          <th:block th:each="i, stat : ${visiblePages}">
+            <!-- Ellipsis khi có khoảng trống -->
+            <span
+              class="pagination-ellipsis"
+              th:if="${stat.index > 0
+                            and i - visiblePages[stat.index - 1] > 1}"
+            >
+              ...
+            </span>
 
-                <!-- Ellipsis khi có khoảng trống -->
-                <span class="pagination-ellipsis"
-                    th:if="${stat.index > 0
-                            and i - visiblePages[stat.index - 1] > 1}">
-                    ...
-                </span>
-
-                <!-- Page number -->
-                <a th:href="@{/products(
+            <!-- Page number -->
+            <a
+              th:href="@{/products(
                     page=${i},
                     size=${pageSize},
                     keyword=${keyword},
@@ -401,15 +405,16 @@
                     maxPrice=${maxPrice},
                     sort=${sort}
                 )}"
-                th:text="${i + 1}"
-                class="pagination-btn"
-                th:classappend="${i == currentPage} ? ' active' : ''">
-                </a>
+              th:text="${i + 1}"
+              class="pagination-btn"
+              th:classappend="${i == currentPage} ? ' active' : ''"
+            >
+            </a>
+          </th:block>
 
-            </th:block>
-
-            <!-- Next page -->
-            <a th:if="${hasNext}"
+          <!-- Next page -->
+          <a
+            th:if="${hasNext}"
             th:href="@{/products(
                 page=${currentPage + 1},
                 size=${pageSize},
@@ -419,12 +424,14 @@
                 maxPrice=${maxPrice},
                 sort=${sort}
             )}"
-            class="pagination-btn">
-                &rsaquo;
-            </a>
+            class="pagination-btn"
+          >
+            &rsaquo;
+          </a>
 
-            <!-- Last page -->
-            <a th:href="@{/products(
+          <!-- Last page -->
+          <a
+            th:href="@{/products(
                 page=${totalPages - 1},
                 size=${pageSize},
                 keyword=${keyword},
@@ -434,30 +441,24 @@
                 sort=${sort}
             )}"
             class="pagination-btn"
-            th:classappend="${currentPage == totalPages - 1} ? ' disabled' : ''">
-                Cuối &raquo;
-            </a>
-
+            th:classappend="${currentPage == totalPages - 1} ? ' disabled' : ''"
+          >
+            Cuối &raquo;
+          </a>
         </div>
 
         <!-- EMPTY STATE -->
-        <div class="empty"
-             th:if="${#lists.isEmpty(products)}">
+        <div class="empty" th:if="${#lists.isEmpty(products)}">
+          <h3>Không tìm thấy sản phẩm phù hợp.</h3>
 
-            <h3>Không tìm thấy sản phẩm phù hợp.</h3>
+          <p>Hãy thử thay đổi từ khóa hoặc điều kiện lọc.</p>
 
-            <p>Hãy thử thay đổi từ khóa hoặc điều kiện lọc.</p>
-
-            <a href="/products">Xem tất cả sản phẩm</a>
-
+          <a href="/products">Xem tất cả sản phẩm</a>
         </div>
+      </section>
+    </main>
 
-    </section>
-
-</main>
-
-<script th:src="@{/js/session.js}"></script>
-<script th:src="@{/js/header.js}"></script>
-
-</body>
+    <script th:src="@{/js/session.js}"></script>
+    <script th:src="@{/js/header.js}"></script>
+  </body>
 </html>

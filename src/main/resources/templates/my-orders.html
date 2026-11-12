@@ -1,0 +1,137 @@
+
+<!DOCTYPE html>
+<html lang="vi" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng của tôi - Online Shop</title>
+
+    <link rel="stylesheet" th:href="@{/css/user/my-orders.css}">
+    <link rel="stylesheet" th:href="@{/css/user/profile.css}">
+</head>
+
+<body>
+
+    <header class="orders-header">
+        <div class="orders-header-inner">
+            <a href="/" class="orders-logo">Online Shop</a>
+
+            <nav class="orders-nav">
+                <a href="/">Trang chủ</a>
+                <a href="/products">Sản phẩm</a>
+            </nav>
+
+            <div class="header-account" id="headerAccount">
+                <span class="header-icon">♙</span>
+                <div>
+                    <a href="/login">Đăng nhập</a>
+                    <a href="/register">Đăng ký</a>
+                </div>
+            </div>
+
+            <a href="/cart" class="orders-cart">Giỏ hàng</a>
+        </div>
+    </header>
+
+    <main class="orders-container">
+
+        <div class="orders-heading">
+            <div>
+                <h1>Đơn hàng của tôi</h1>
+                <p>Theo dõi và quản lý các đơn hàng đã đặt.</p>
+            </div>
+        </div>
+
+        <section class="orders-summary">
+            <div class="summary-card">
+                <span>Tổng đơn hàng</span>
+                <strong id="totalOrders">0</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Chờ xác nhận</span>
+                <strong id="pendingOrders">0</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Đang giao</span>
+                <strong id="shippingOrders">0</strong>
+            </div>
+
+            <div class="summary-card">
+                <span>Đã giao</span>
+                <strong id="deliveredOrders">0</strong>
+            </div>
+        </section>
+
+        <section class="orders-panel">
+
+            <div class="orders-toolbar">
+                <h2>Lịch sử mua hàng</h2>
+
+                <select id="statusFilter">
+                    <option value="ALL">Tất cả trạng thái</option>
+                    <option value="PENDING">Chờ xác nhận</option>
+                    <option value="CONFIRMED">Đã xác nhận</option>
+                    <option value="PROCESSING">Đang xử lý</option>
+                    <option value="SHIPPED">Đang giao</option>
+                    <option value="DELIVERED">Đã giao</option>
+                    <option value="CANCELLED">Đã hủy</option>
+                </select>
+            </div>
+
+            <div id="ordersMessage" class="orders-message">
+                Đang tải đơn hàng...
+            </div>
+
+            <div class="orders-table-wrapper" id="ordersTableWrapper" hidden>
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Ngày đặt</th>
+                            <th>Số sản phẩm</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Thao tác</th>
+                        </tr>
+                    </thead>
+                    <tbody id="ordersTableBody"></tbody>
+                </table>
+            </div>
+
+            <div class="orders-pagination" id="ordersPagination" hidden>
+                <button type="button" id="previousPage">Trước</button>
+                <span id="pageInfo"></span>
+                <button type="button" id="nextPage">Sau</button>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- Popup chi tiết đơn hàng -->
+    <div class="order-modal" id="orderModal" hidden>
+        <div class="order-modal-content">
+
+            <div class="order-modal-header">
+                <div>
+                    <h2>Chi tiết đơn hàng</h2>
+                    <p id="detailOrderId"></p>
+                </div>
+
+                <button type="button" id="closeOrderModal"
+                        class="order-close-btn">&times;</button>
+            </div>
+
+            <div id="orderDetailContent"></div>
+
+        </div>
+    </div>
+
+    <script th:src="@{/js/session.js}"></script>
+    <script th:src="@{/js/header.js}"></script>
+    <script th:src="@{/js/my-orders.js}"></script>
+
+</body>
+</html>

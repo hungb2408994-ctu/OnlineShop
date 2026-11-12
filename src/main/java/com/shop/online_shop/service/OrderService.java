@@ -24,377 +24,393 @@ public class OrderService {
         private final JdbcTemplate jdbcTemplate;
         private final NotificationRepository notificationRepository;
 
-    public OrderService(
-        OrderRepository orderRepository,
-        CartRepository cartRepository,
-        UserRepository userRepository,
-        ProductRepository productRepository,
-        NotificationRepository notificationRepository,
-        JdbcTemplate jdbcTemplate) {
+        public OrderService(
+                        OrderRepository orderRepository,
+                        CartRepository cartRepository,
+                        UserRepository userRepository,
+                        ProductRepository productRepository,
+                        NotificationRepository notificationRepository,
+                        JdbcTemplate jdbcTemplate) {
 
-        this.orderRepository = orderRepository;
-        this.cartRepository = cartRepository;
-        this.userRepository = userRepository;
-        this.productRepository = productRepository;
-        this.jdbcTemplate = jdbcTemplate;
-        this.notificationRepository = notificationRepository;
-    }
-
-    @Transactional
-    public OrderResponse checkout(Long userId, String shippingAddress) {
-
-        if (shippingAddress == null || shippingAddress.trim().isEmpty()) {
-            throw new RuntimeException("Shipping address cannot be empty!");
+                this.orderRepository = orderRepository;
+                this.cartRepository = cartRepository;
+                this.userRepository = userRepository;
+                this.productRepository = productRepository;
+                this.jdbcTemplate = jdbcTemplate;
+                this.notificationRepository = notificationRepository;
         }
 
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
+        @Transactional
+        public OrderResponse checkout(Long userId, String shippingAddress) {
 
-        Cart cart = cartRepository.findByUserId(userId)
-                .orElseThrow(() -> new RuntimeException("Cart not found!"));
-
-        if (cart.getItems() == null || cart.getItems().isEmpty()) {
-            throw new RuntimeException("Cart is empty!");
-        }
-
-        Order order = new Order();
-        order.setUser(user);
-        order.setShippingAddress(shippingAddress);
-        order.setStatus("PENDING");
-
-        BigDecimal totalAmount = BigDecimal.ZERO;
-        List<OrderItemResponse> responseItems = new ArrayList<>();
-
-        for (CartItem cartItem : new ArrayList<>(cart.getItems())) {
-
-            Product product = productRepository.findById(
-                    cartItem.getProduct().getId()
-            ).orElseThrow(() -> new RuntimeException("Product not found!"));
-
-            // Không cho phép thanh toán sản phẩm đã bị ẩn
-                if (!"ACTIVE".equals(product.getStatus())) {
-                throw new RuntimeException(
-                        "Sản phẩm " + product.getName()
-                        + " hiện không còn kinh doanh. Vui lòng xóa khỏi giỏ hàng!"
-                );
+                if (shippingAddress == null || shippingAddress.trim().isEmpty()) {
+                        throw new RuntimeException("Shipping address cannot be empty!");
                 }
 
-            Integer quantity = cartItem.getQuantity();
+                User user = userRepository.findById(userId)
+                                .orElseThrow(() -> new RuntimeException("User not found!"));
 
-            if (quantity == null || quantity <= 0) {
-                throw new RuntimeException("Invalid product quantity!");
-            }
+                Cart cart = cartRepository.findByUserId(userId)
+                                .orElseThrow(() -> new RuntimeException("Cart not found!"));
 
-            if (product.getQuantity() == null ||
-                    product.getQuantity() < quantity) {
-                throw new RuntimeException(
-                        "Insufficient stock for product: " + product.getName()
-                );
-            }
+                if (cart.getItems() == null || cart.getItems().isEmpty()) {
+                        throw new RuntimeException("Cart is empty!");
+                }
 
-            BigDecimal subtotal = product.getPrice()
-                    .multiply(BigDecimal.valueOf(quantity));
+                Order order = new Order();
+                order.setUser(user);
+                order.setShippingAddress(shippingAddress);
+                order.setStatus("PENDING");
 
-            totalAmount = totalAmount.add(subtotal);
+                BigDecimal totalAmount = BigDecimal.ZERO;
+                List<OrderItemResponse> responseItems = new ArrayList<>();
 
-            OrderItem orderItem = new OrderItem();
-            orderItem.setOrder(order);
-            orderItem.setProduct(product);
-            orderItem.setQuantity(quantity);
-            orderItem.setUnitPrice(product.getPrice());
+                for (CartItem cartItem : new ArrayList<>(cart.getItems())) {
 
-            order.getItems().add(orderItem);
+                        Product product = productRepository.findById(
+                                        cartItem.getProduct().getId())
+                                        .orElseThrow(() -> new RuntimeException("Product not found!"));
 
-            product.setQuantity(product.getQuantity() - quantity);
-            productRepository.save(product);
+                        // Không cho phép thanh toán sản phẩm đã bị ẩn
+                        if (!"ACTIVE".equals(product.getStatus())) {
+                                throw new RuntimeException(
+                                                "Sản phẩm " + product.getName()
+                                                                + " hiện không còn kinh doanh. Vui lòng xóa khỏi giỏ hàng!");
+                        }
 
-            responseItems.add(new OrderItemResponse(
-                    product.getId(),
-                    product.getName(),
-                    quantity,
-                    product.getPrice(),
-                    subtotal
-            ));
+                        Integer quantity = cartItem.getQuantity();
+
+                        if (quantity == null || quantity <= 0) {
+                                throw new RuntimeException("Invalid product quantity!");
+                        }
+
+                        if (product.getQuantity() == null ||
+                                        product.getQuantity() < quantity) {
+                                throw new RuntimeException(
+                                                "Insufficient stock for product: " + product.getName());
+                        }
+
+                        BigDecimal subtotal = product.getPrice()
+                                        .multiply(BigDecimal.valueOf(quantity));
+
+                        totalAmount = totalAmount.add(subtotal);
+
+                        OrderItem orderItem = new OrderItem();
+                        orderItem.setOrder(order);
+                        orderItem.setProduct(product);
+                        orderItem.setQuantity(quantity);
+                        orderItem.setUnitPrice(product.getPrice());
+
+                        order.getItems().add(orderItem);
+
+                        product.setQuantity(product.getQuantity() - quantity);
+                        productRepository.save(product);
+
+                        responseItems.add(new OrderItemResponse(
+                                        product.getId(),
+                                        product.getName(),
+                                        quantity,
+                                        product.getPrice(),
+                                        subtotal));
+                }
+
+                order.setTotalAmount(totalAmount);
+
+                Order savedOrder = orderRepository.save(order);
+
+                // Tạo thông báo cho khách hàng
+                Notification customerNotification = new Notification();
+
+                customerNotification.setUser(user);
+                customerNotification.setOrder(savedOrder);
+                customerNotification.setTitle("Đặt hàng thành công");
+                customerNotification.setMessage(
+                                "Đơn hàng #" + savedOrder.getId()
+                                                + " của bạn đã được tạo thành công và đang chờ xác nhận.");
+                customerNotification.setRead(false);
+
+                notificationRepository.save(customerNotification);
+
+                // Tạo thông báo cho tất cả Admin
+                List<User> admins = userRepository.findAllByRoleIgnoreCase("ADMIN");
+
+                for (User admin : admins) {
+
+                        Notification notification = new Notification();
+
+                        notification.setUser(admin);
+                        notification.setOrder(savedOrder);
+                        notification.setTitle("Đơn hàng mới");
+
+                        notification.setMessage(
+                                        "Khách hàng " + user.getFullName()
+                                                        + " vừa đặt đơn hàng #" + savedOrder.getId());
+
+                        notification.setRead(false);
+
+                        notificationRepository.save(notification);
+                }
+
+                cart.getItems().clear();
+                cartRepository.save(cart);
+
+                return new OrderResponse(
+                                savedOrder.getId(),
+                                user.getId(),
+                                savedOrder.getOrderDate(),
+                                totalAmount,
+                                savedOrder.getStatus(),
+                                savedOrder.getShippingAddress(),
+                                responseItems);
         }
 
-        order.setTotalAmount(totalAmount);
+        @Transactional(readOnly = true)
+        public List<OrderResponse> getOrderHistory(Long userId) {
 
-        Order savedOrder = orderRepository.save(order);
+                userRepository.findById(userId)
+                                .orElseThrow(() -> new RuntimeException("User not found!"));
 
-        // Tạo thông báo cho tất cả Admin
-        List<User> admins = userRepository.findAllByRoleIgnoreCase("ADMIN");
+                List<Order> orders = orderRepository.findByUserIdOrderByOrderDateDesc(userId);
 
-        for (User admin : admins) {
+                List<OrderResponse> responses = new ArrayList<>();
 
-        Notification notification = new Notification();
+                for (Order order : orders) {
 
-        notification.setUser(admin);
-        notification.setOrder(savedOrder);
-        notification.setTitle("Đơn hàng mới");
+                        List<OrderItemResponse> items = new ArrayList<>();
 
-        notification.setMessage(
-                "Khách hàng " + user.getFullName()
-                + " vừa đặt đơn hàng #" + savedOrder.getId()
-        );
+                        for (OrderItem item : order.getItems()) {
 
-        notification.setRead(false);
+                                items.add(new OrderItemResponse(
+                                                item.getProduct().getId(),
+                                                item.getProduct().getName(),
+                                                item.getQuantity(),
+                                                item.getUnitPrice(),
+                                                item.getUnitPrice().multiply(
+                                                                BigDecimal.valueOf(item.getQuantity()))));
+                        }
 
-        notificationRepository.save(notification);
+                        responses.add(new OrderResponse(
+                                        order.getId(),
+                                        userId,
+                                        order.getOrderDate(),
+                                        order.getTotalAmount(),
+                                        order.getStatus(),
+                                        order.getShippingAddress(),
+                                        items));
+                }
+
+                return responses;
         }
-
-        cart.getItems().clear();
-        cartRepository.save(cart);
-
-        return new OrderResponse(
-                savedOrder.getId(),
-                user.getId(),
-                savedOrder.getOrderDate(),
-                totalAmount,
-                savedOrder.getStatus(),
-                savedOrder.getShippingAddress(),
-                responseItems
-        );
-    }
-
-    @Transactional(readOnly = true)
-    public List<OrderResponse> getOrderHistory(Long userId) {
-
-        userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found!"));
-
-        List<Order> orders =
-                orderRepository.findByUserIdOrderByOrderDateDesc(userId);
-
-        List<OrderResponse> responses = new ArrayList<>();
-
-        for (Order order : orders) {
-
-            List<OrderItemResponse> items = new ArrayList<>();
-
-            for (OrderItem item : order.getItems()) {
-
-                items.add(new OrderItemResponse(
-                        item.getProduct().getId(),
-                        item.getProduct().getName(),
-                        item.getQuantity(),
-                        item.getUnitPrice(),
-                        item.getUnitPrice().multiply(
-                                BigDecimal.valueOf(item.getQuantity())
-                        )
-                ));
-            }
-
-            responses.add(new OrderResponse(
-                    order.getId(),
-                    userId,
-                    order.getOrderDate(),
-                    order.getTotalAmount(),
-                    order.getStatus(),
-                    order.getShippingAddress(),
-                    items
-            ));
-        }
-
-        return responses;
-    }
 
         @Transactional(readOnly = true)
         public BigDecimal calculateOrderTotal(Long orderId, Long userId) {
 
-        boolean isOwner = orderRepository.existsByIdAndUser_Id(orderId, userId);
+                boolean isOwner = orderRepository.existsByIdAndUser_Id(orderId, userId);
 
-        if (!isOwner) {
-                throw new RuntimeException("Order not found!");
+                if (!isOwner) {
+                        throw new RuntimeException("Order not found!");
+                }
+
+                return orderRepository.calculateOrderTotal(orderId);
         }
 
-        return orderRepository.calculateOrderTotal(orderId);
-        }
         @Transactional(readOnly = true)
         public OrderSummaryResponse getOrderSummary(Long userId) {
 
-        return jdbcTemplate.queryForObject(
-                "CALL sp_user_order_summary(?)",
-                (rs, rowNum) -> new OrderSummaryResponse(
-                        rs.getLong("total_orders"),
-                        rs.getLong("pending_orders"),
-                        rs.getLong("confirmed_orders"),
-                        rs.getLong("shipping_orders"),
-                        rs.getLong("completed_orders"),
-                        rs.getLong("cancelled_orders"),
-                        rs.getBigDecimal("completed_amount")
-                ),
-                userId
-        );
+                return jdbcTemplate.queryForObject(
+                                "CALL sp_user_order_summary(?)",
+                                (rs, rowNum) -> new OrderSummaryResponse(
+                                                rs.getLong("total_orders"),
+                                                rs.getLong("pending_orders"),
+                                                rs.getLong("confirmed_orders"),
+                                                rs.getLong("shipping_orders"),
+                                                rs.getLong("completed_orders"),
+                                                rs.getLong("cancelled_orders"),
+                                                rs.getBigDecimal("completed_amount")),
+                                userId);
         }
 
+        // ADMIN: Lấy tất cả đơn hàng
+        @Transactional(readOnly = true)
+        public List<OrderResponse> getAllOrders() {
+                List<Order> orders = orderRepository.findAllByOrderByOrderDateDesc();
 
-    // ADMIN: Lấy tất cả đơn hàng
-    @Transactional(readOnly = true)
-    public List<OrderResponse> getAllOrders() {
-        List<Order> orders = orderRepository.findAllByOrderByOrderDateDesc();
+                List<OrderResponse> responses = new ArrayList<>();
 
-        List<OrderResponse> responses = new ArrayList<>();
+                for (Order order : orders) {
+                        responses.add(convertToOrderResponse(order));
+                }
 
-        for (Order order : orders) {
-            responses.add(convertToOrderResponse(order));
+                return responses;
         }
 
-        return responses;
-    }
+        // ADMIN: Lấy chi tiết một đơn hàng
+        @Transactional(readOnly = true)
+        public OrderResponse getOrderById(Long orderId) {
+                Order order = orderRepository.findById(orderId)
+                                .orElseThrow(() -> new RuntimeException("Order not found!"));
 
-    // ADMIN: Lấy chi tiết một đơn hàng
-    @Transactional(readOnly = true)
-    public OrderResponse getOrderById(Long orderId) {
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found!"));
-
-        return convertToOrderResponse(order);
-    }
-
-    // ADMIN: Tìm kiếm đơn hàng
-    @Transactional(readOnly = true)
-    public List<OrderResponse> searchOrders(String keyword) {
-        if (keyword == null || keyword.trim().isEmpty()) {
-            return getAllOrders();
+                return convertToOrderResponse(order);
         }
 
-        List<Order> orders =
-                orderRepository.searchOrders(keyword.trim());
+        // ADMIN: Tìm kiếm đơn hàng
+        @Transactional(readOnly = true)
+        public List<OrderResponse> searchOrders(String keyword) {
+                if (keyword == null || keyword.trim().isEmpty()) {
+                        return getAllOrders();
+                }
 
-        List<OrderResponse> responses = new ArrayList<>();
+                List<Order> orders = orderRepository.searchOrders(keyword.trim());
 
-        for (Order order : orders) {
-            responses.add(convertToOrderResponse(order));
+                List<OrderResponse> responses = new ArrayList<>();
+
+                for (Order order : orders) {
+                        responses.add(convertToOrderResponse(order));
+                }
+
+                return responses;
         }
 
-        return responses;
-    }
+        // ADMIN: Lọc đơn hàng theo trạng thái
+        @Transactional(readOnly = true)
+        public List<OrderResponse> getOrdersByStatus(String status) {
+                if (status == null || status.trim().isEmpty()) {
+                        throw new RuntimeException("Status cannot be empty!");
+                }
 
-    // ADMIN: Lọc đơn hàng theo trạng thái
-    @Transactional(readOnly = true)
-    public List<OrderResponse> getOrdersByStatus(String status) {
-        if (status == null || status.trim().isEmpty()) {
-            throw new RuntimeException("Status cannot be empty!");
+                List<Order> orders = orderRepository.findByStatusIgnoreCaseOrderByOrderDateDesc(
+                                status.trim());
+
+                List<OrderResponse> responses = new ArrayList<>();
+
+                for (Order order : orders) {
+                        responses.add(convertToOrderResponse(order));
+                }
+
+                return responses;
         }
 
-        List<Order> orders =
-                orderRepository.findByStatusIgnoreCaseOrderByOrderDateDesc(
-                        status.trim()
-                );
+        // ADMIN: Cập nhật trạng thái đơn hàng
+        @Transactional
+        public OrderResponse updateOrderStatus(Long orderId, String newStatus) {
 
-        List<OrderResponse> responses = new ArrayList<>();
+                if (newStatus == null || newStatus.trim().isEmpty()) {
+                        throw new RuntimeException("Status cannot be empty!");
+                }
 
-        for (Order order : orders) {
-            responses.add(convertToOrderResponse(order));
+                newStatus = newStatus.trim().toUpperCase();
+
+                List<String> validStatuses = List.of(
+                                "PENDING",
+                                "CONFIRMED",
+                                "SHIPPING",
+                                "COMPLETED",
+                                "CANCELLED");
+
+                if (!validStatuses.contains(newStatus)) {
+                        throw new RuntimeException("Invalid order status!");
+                }
+
+                Order order = orderRepository.findById(orderId)
+                                .orElseThrow(() -> new RuntimeException("Order not found!"));
+
+                String currentStatus = order.getStatus().toUpperCase();
+
+                // Không cho phép cập nhật lại đơn đã hoàn thành hoặc đã hủy
+                if (currentStatus.equals("COMPLETED")
+                                || currentStatus.equals("CANCELLED")) {
+                        throw new RuntimeException(
+                                        "Cannot update a completed or cancelled order!");
+                }
+
+                // Kiểm tra quy trình chuyển trạng thái
+                boolean validTransition = (currentStatus.equals("PENDING")
+                                && (newStatus.equals("CONFIRMED")
+                                                || newStatus.equals("CANCELLED")))
+                                ||
+                                (currentStatus.equals("CONFIRMED")
+                                                && (newStatus.equals("SHIPPING")
+                                                                || newStatus.equals("CANCELLED")))
+                                ||
+                                (currentStatus.equals("SHIPPING")
+                                                && newStatus.equals("COMPLETED"));
+
+                if (!validTransition) {
+                        throw new RuntimeException(
+                                        "Invalid status transition: "
+                                                        + currentStatus + " -> " + newStatus);
+                }
+
+                // Nếu hủy đơn, hoàn lại số lượng tồn kho
+                if (newStatus.equals("CANCELLED")) {
+
+                        for (OrderItem item : order.getItems()) {
+
+                                Product product = item.getProduct();
+
+                                product.setQuantity(
+                                                product.getQuantity() + item.getQuantity());
+
+                                productRepository.save(product);
+                        }
+                }
+
+                order.setStatus(newStatus);
+
+                Order savedOrder = orderRepository.save(order);
+
+                // Tạo thông báo cho khách hàng
+                Notification notification = new Notification();
+
+                notification.setUser(order.getUser());
+                notification.setOrder(savedOrder);
+                notification.setTitle("Cập nhật trạng thái đơn hàng");
+                notification.setMessage(
+                                "Đơn hàng #" + savedOrder.getId()
+                                                + " của bạn đã được cập nhật trạng thái thành: "
+                                                + getStatusDisplayName(newStatus));
+                notification.setRead(false);
+
+                notificationRepository.save(notification);
+
+                return convertToOrderResponse(savedOrder);
         }
 
-        return responses;
-    }
+        // Chuyển Order Entity thành OrderResponse
+        private OrderResponse convertToOrderResponse(Order order) {
 
-    // ADMIN: Cập nhật trạng thái đơn hàng
-    @Transactional
-    public OrderResponse updateOrderStatus(Long orderId, String newStatus) {
+                List<OrderItemResponse> items = new ArrayList<>();
 
-        if (newStatus == null || newStatus.trim().isEmpty()) {
-            throw new RuntimeException("Status cannot be empty!");
+                for (OrderItem item : order.getItems()) {
+
+                        items.add(new OrderItemResponse(
+                                        item.getProduct().getId(),
+                                        item.getProduct().getName(),
+                                        item.getQuantity(),
+                                        item.getUnitPrice(),
+                                        item.getUnitPrice().multiply(
+                                                        BigDecimal.valueOf(item.getQuantity()))));
+                }
+
+                return new OrderResponse(
+                                order.getId(),
+                                order.getUser().getId(),
+                                order.getOrderDate(),
+                                order.getTotalAmount(),
+                                order.getStatus(),
+                                order.getShippingAddress(),
+                                items);
         }
 
-        newStatus = newStatus.trim().toUpperCase();
+        private String getStatusDisplayName(String status) {
 
-        List<String> validStatuses = List.of(
-                "PENDING",
-                "CONFIRMED",
-                "SHIPPING",
-                "COMPLETED",
-                "CANCELLED"
-        );
-
-        if (!validStatuses.contains(newStatus)) {
-            throw new RuntimeException("Invalid order status!");
+                return switch (status) {
+                        case "PENDING" -> "Chờ xác nhận";
+                        case "CONFIRMED" -> "Đã xác nhận";
+                        case "SHIPPING" -> "Đang giao hàng";
+                        case "COMPLETED" -> "Đã giao thành công";
+                        case "CANCELLED" -> "Đã hủy";
+                        default -> status;
+                };
         }
-
-        Order order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found!"));
-
-        String currentStatus = order.getStatus().toUpperCase();
-
-        // Không cho phép cập nhật lại đơn đã hoàn thành hoặc đã hủy
-        if (currentStatus.equals("COMPLETED")
-                || currentStatus.equals("CANCELLED")) {
-            throw new RuntimeException(
-                    "Cannot update a completed or cancelled order!"
-            );
-        }
-
-        // Kiểm tra quy trình chuyển trạng thái
-        boolean validTransition =
-                (currentStatus.equals("PENDING")
-                        && (newStatus.equals("CONFIRMED")
-                        || newStatus.equals("CANCELLED")))
-                ||
-                (currentStatus.equals("CONFIRMED")
-                        && (newStatus.equals("SHIPPING")
-                        || newStatus.equals("CANCELLED")))
-                ||
-                (currentStatus.equals("SHIPPING")
-                        && newStatus.equals("COMPLETED"));
-
-        if (!validTransition) {
-            throw new RuntimeException(
-                    "Invalid status transition: "
-                            + currentStatus + " -> " + newStatus
-            );
-        }
-
-        // Nếu hủy đơn, hoàn lại số lượng tồn kho
-        if (newStatus.equals("CANCELLED")) {
-
-            for (OrderItem item : order.getItems()) {
-
-                Product product = item.getProduct();
-
-                product.setQuantity(
-                        product.getQuantity() + item.getQuantity()
-                );
-
-                productRepository.save(product);
-            }
-        }
-
-        order.setStatus(newStatus);
-
-        Order savedOrder = orderRepository.save(order);
-
-        return convertToOrderResponse(savedOrder);
-    }
-
-    // Chuyển Order Entity thành OrderResponse
-    private OrderResponse convertToOrderResponse(Order order) {
-
-        List<OrderItemResponse> items = new ArrayList<>();
-
-        for (OrderItem item : order.getItems()) {
-
-            items.add(new OrderItemResponse(
-                    item.getProduct().getId(),
-                    item.getProduct().getName(),
-                    item.getQuantity(),
-                    item.getUnitPrice(),
-                    item.getUnitPrice().multiply(
-                            BigDecimal.valueOf(item.getQuantity())
-                    )
-            ));
-        }
-
-        return new OrderResponse(
-                order.getId(),
-                order.getUser().getId(),
-                order.getOrderDate(),
-                order.getTotalAmount(),
-                order.getStatus(),
-                order.getShippingAddress(),
-                items
-        );
-    }
-
 }

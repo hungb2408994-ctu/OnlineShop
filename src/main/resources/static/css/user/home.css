@@ -930,4 +930,230 @@ a {
     font-weight: 600;
     text-decoration: none;
     white-space: nowrap;
+}.notification-link,
+.header-notification {
+    position: relative;
+}
+
+.notification-badge[hidden] {
+    display: none;
+}
+
+/* =========================================
+   SHARED HEADER - HOME & PRODUCTS
+========================================= */
+
+/* Notification */
+.notification-link,
+.header-notification {
+    position: relative;
+    width: 38px;
+    height: 38px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: #64748b;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+    text-decoration: none;
+    transition: 0.2s ease;
+}
+
+.notification-link svg,
+.header-notification svg {
+    width: 20px;
+    height: 20px;
+}
+
+.notification-link:hover,
+.header-notification:hover {
+    color: #2563eb;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+/* Notification badge */
+.notification-badge {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    min-width: 18px;
+    height: 18px;
+    padding: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #ef4444;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+}
+
+.notification-badge[hidden] {
+    display: none;
+}
+
+/* Account wrapper */
+.account-menu-wrapper {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
+/* Account trigger */
+.account-menu-trigger {
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 10px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    background: transparent;
+    color: #475569;
+    font-family: inherit;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.account-menu-trigger:hover,
+.account-menu-trigger[aria-expanded="true"] {
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.account-menu-trigger .account-icon {
+    font-size: 21px;
+    color: #64748b;
+}
+
+.account-menu-trigger .account-name {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: #172033;
+    font-weight: 600;
+}
+
+/* Account dropdown */
+.account-dropdown {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    z-index: 200;
+    width: 210px;
+    padding: 7px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    box-shadow: 0 10px 30px rgba(15, 23, 42, 0.12);
+}
+
+.account-dropdown[hidden] {
+    display: none;
+}
+
+.account-dropdown a,
+.account-dropdown button {
+    width: 100%;
+    min-height: 38px;
+    display: flex;
+    align-items: center;
+    padding: 9px 11px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    color: #475569;
+    font-family: inherit;
+    font-size: 13px;
+    text-align: left;
+    text-decoration: none;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.account-dropdown a:hover,
+.account-dropdown button:hover {
+    background: #eff6ff;
+    color: #2563eb;
+}
+
+.account-dropdown .account-logout {
+    margin-top: 5px;
+    border-top: 1px solid #f1f5f9;
+    border-radius: 0 0 7px 7px;
+    color: #dc2626;
+}
+
+/* Cart */
+.cart-link,
+.header-cart {
+    min-height: 38px;
+    display: inline-flex;
+    align-items: center;
+    gap: 9px;
+    padding: 5px 10px;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: #475569;
+    font-size: 13px;
+    font-weight: 600;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: 0.2s ease;
+}
+
+.cart-link:hover,
+.header-cart:hover {
+    color: #2563eb;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+.cart-icon {
+    font-size: 21px;
+}
+
+/* Header responsive */
+@media (max-width: 768px) {
+    .account-menu-trigger {
+        padding: 5px 7px;
+    }
+
+    .account-menu-trigger .account-name {
+        max-width: 95px;
+    }
+
+    .notification-link,
+    .header-notification {
+        width: 35px;
+        height: 35px;
+    }
+
+    .cart-link,
+    .header-cart {
+        padding: 5px 7px;
+        gap: 5px;
+        font-size: 12px;
+    }
+}
+
+@media (max-width: 450px) {
+    .account-menu-trigger .account-name {
+        max-width: 75px;
+        font-size: 11px;
+    }
+
+    .cart-link > span:last-child,
+    .header-cart > span:last-child {
+        display: none;
+    }
 }
